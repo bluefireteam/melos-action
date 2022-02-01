@@ -1,15 +1,15 @@
-name: 'Melos action'
-description: 'Setup Melos for you GitHub workflow'
-author: 'Lukas Klingsbo'
+name: Melos action
+description: Setup Melos for you GitHub workflow
+author: Lukas Klingsbo
 branding:
-  icon: 'road'
-  color: 'blue'
+  icon: road
+  color: blue
 inputs:
   melos-version:
-    description: 'The Melos version to make available on the path'
+    description: The Melos version to make available on the path
     required: false
 runs:
-  using: 'composite'
+  using: composite
   steps:
     - run: $GITHUB_ACTION_PATH/setup.sh -c "${{ inputs.melos-version }}"
       shell: bash

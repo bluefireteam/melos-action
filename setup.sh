@@ -12,5 +12,3 @@ else
   echo 'Error: Either dart or flutter needs to be on the PATH.' >&2
   exit 1
 fi
-
-melos bootstrap

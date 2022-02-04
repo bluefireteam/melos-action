@@ -11,5 +11,5 @@ inputs:
 runs:
   using: composite
   steps:
-    - run: $GITHUB_ACTION_PATH/setup.sh -c "${{ inputs.melos-version }}"
+    - run: $GITHUB_ACTION_PATH/setup.sh "${{ inputs.melos-version }}"
       shell: bash

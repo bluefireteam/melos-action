@@ -8,8 +8,11 @@ inputs:
   melos-version:
     description: The Melos version to make available on the path
     required: false
+  run-bootstrap:
+    description: Whether bootstrap should run or not (default: true)
+    required: false
 runs:
   using: composite
   steps:
-    - run: $GITHUB_ACTION_PATH/setup.sh "${{ inputs.melos-version }}"
+    - run: $GITHUB_ACTION_PATH/setup.sh "${{ inputs.melos-version }}" "${{ inputs.run-bootstrap }}"
       shell: bash

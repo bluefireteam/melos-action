@@ -9,7 +9,7 @@ inputs:
     description: The Melos version to make available on the path
     required: false
   run-bootstrap:
-    description: Whether bootstrap should run or not (default: true)
+    description: 'Whether bootstrap should run or not (default: true)'
     required: false
 runs:
   using: composite

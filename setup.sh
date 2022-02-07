@@ -15,7 +15,7 @@ else
   exit 1
 fi
 
-if [ $run_bootstrap != false ]
+if [ "$run_bootstrap" != "false" ]
 then
   echo Running melos bootstrap
   melos bootstrap

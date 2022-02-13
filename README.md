@@ -16,7 +16,6 @@ steps:
 - uses: actions/checkout@v2
 - uses: subosito/flutter-action@v2
 - uses: bluefireteam/melos-action@v1
-- run: melos bootstrap
 ```
 
 
@@ -27,7 +26,6 @@ steps:
 - uses: actions/checkout@v2
 - uses: dart-lang/setup-dart@v1
 - uses: bluefireteam/melos-action@v1
-- run: melos bootstrap
 ```
 
 
@@ -52,7 +50,15 @@ steps:
 - uses: bluefireteam/melos-action@v1
   with:
     melos-version: '1.2.0'
-- run: melos bootstrap
 ```
 
+By default `melos bootstrap` is run by the action, if you don't want it to run set `run-bootstrap: false`.
 
+```yaml
+steps:
+- uses: actions/checkout@v2
+- uses: subosito/flutter-action@v2
+- uses: bluefireteam/melos-action@v1
+  with:
+    run-bootstrap: false
+```

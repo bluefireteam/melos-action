@@ -2,8 +2,8 @@ name: Melos action
 description: Setup Melos for you GitHub workflow
 author: Lukas Klingsbo
 branding:
-  icon: road
-  color: blue
+  icon: loader
+  color: purple
 inputs:
   melos-version:
     description: The Melos version to make available on the path

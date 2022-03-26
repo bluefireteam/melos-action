@@ -3,7 +3,7 @@
 version=$1
 run_bootstrap=$2
 
-echo Installing Melos $version...
+echo "Installing Melos $version..."
 
 dart pub global activate melos $version
 

@@ -14,5 +14,5 @@ fi
 
 if ! [ -x "$(command -v melos)" ]; then
   echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
-  echo 'Added Melos to PATH.
+  echo 'Added Melos to PATH.'
 fi

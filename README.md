@@ -28,6 +28,9 @@ steps:
 - uses: bluefireteam/melos-action@v1
 ```
 
+If Melos isn't already on your path after the installation it is added
+automatically.
+
 
 ### Arguments
 

@@ -20,7 +20,7 @@ runs:
   using: composite
   steps:
     - name: Activate melos
-      run: dart pub global activate melos "${{ inputs.melos-version }}"
+      run: dart pub global activate melos ${{ inputs.melos-version }}
       shell: bash
     - name: Run melos bootstrap
       if: ${{ inputs.run-bootstrap == 'true' }}

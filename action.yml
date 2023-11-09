@@ -12,12 +12,20 @@ inputs:
     description: 'Whether bootstrap should run or not (default: true)'
     required: false
     default: 'true'
+  version:
+    description: 'Whether packages should be versioned and published to pub.dev (default: false)'
+    required: false
+    default: 'false'
   publish-dry-run:
-    description: 'Whether packages should be versioned and dry-run published (default: false)'
+    description: 'Whether packages should be dry-run published (default: false)'
     required: false
     default: 'false'
   publish:
-    description: 'Whether packages should be versioned and published to pub.dev (default: false)'
+    description: 'Whether packages should be published to pub.dev (default: false)'
+    required: false
+    default: 'false'
+  create-pr:
+    description: 'Whether a PR should be created with the versioning changes (default: false)'
     required: false
     default: 'false'
   git-email:
@@ -48,25 +56,25 @@ runs:
         git config --global user.name "${{ inputs.git-username }}"
       shell: bash
     - name: Run melos version (dry run)
-      if: ${{ inputs.publish-dry-run == 'true' }}
+      if: ${{ inputs.version == 'true' }}
       run: melos version --yes --no-git-tag-version
       shell: bash
     - name: Run melos publish (dry run)
       if: ${{ inputs.publish-dry-run == 'true' }}
       run: melos publish -y --dry-run
       shell: bash
-    - name: Run melos version
-      if: ${{ inputs.publish == 'true' }}
-      run: melos version --yes
-      shell: bash
-    - name: Run melos publish to pub.dev
-      if: ${{ inputs.publish == 'true' }}
-      run: melos publish -y --dry-run # Change to --no-dry-run once it is certain it works
-      shell: bash
     - name: Create Pull Request with changes
-      if: ${{ inputs.publish == 'true' }} # Change this to be done only if PR is requested
+      if: ${{ inputs.create-pr == 'true' }}
       uses: peter-evans/create-pull-request@v5
       with:
         title: 'chore(release): Publish packages'
-        body: 'Updated CHANGELOG.md and pubspec.yaml for all packages after release to pub.dev'
-        branch: release
+        body: 'Prepared all packages to be released to pub.dev'
+        branch: release-${{github.run_id}}
+    - name: Run melos publish to pub.dev
+      if: ${{ inputs.publish == 'true' }}
+      run: melos publish --git-tag-version -y --dry-run # Change to --no-dry-run once it is certain it works
+      shell: bash
+    - name: Push tags to repository
+      if: ${{ inputs.publish == 'true' }}
+      run: git push --tags
+      shell: bash

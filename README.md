@@ -8,6 +8,9 @@ Activates [Melos](https://github.com/invertase/melos) for your GitHub workflow.
 The `melos-action` needs to have either dart or flutter on the path before it
 can activate melos.
 
+Remember to check the "Allow GitHub Actions to create and approve pull requests" checkbox in the
+bottom of the Actions > General section of your repository settings.
+
 
 ### With Flutter
 

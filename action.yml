@@ -51,13 +51,13 @@ runs:
       if: ${{ inputs.publish == 'true' || inputs.publish-dry-run == 'true' }}
       run: melos version --yes
       shell: bash
-    - name: Run melos publish -y --dry-run
+    - name: Run melos publish dry run
       if: ${{ inputs.publish-dry-run == 'true' }}
-      run: melos publish --dry-run
+      run: melos publish -y --dry-run
       shell: bash
-    - name: Run melos publish -y --no-dry-run
+    - name: Run melos publish to pub.dev
       if: ${{ inputs.publish == 'true' }}
-      run: melos publish --dry-run # Change to --no-dry-run once it is certain it works
+      run: melos publish -y --dry-run # Change to --no-dry-run once it is certain it works
       shell: bash
     - name: Create Pull Request with changes
       if: ${{ inputs.publish == 'true' }}

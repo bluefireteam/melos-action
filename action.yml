@@ -47,20 +47,24 @@ runs:
         git config --global user.email "${{ inputs.git-email }}"
         git config --global user.name "${{ inputs.git-username }}"
       shell: bash
-    - name: Run melos version
-      if: ${{ inputs.publish == 'true' || inputs.publish-dry-run == 'true' }}
-      run: melos version --yes
+    - name: Run melos version (dry run)
+      if: ${{ inputs.publish-dry-run == 'true' }}
+      run: melos version --yes --no-git-tag-version
       shell: bash
-    - name: Run melos publish dry run
+    - name: Run melos publish (dry run)
       if: ${{ inputs.publish-dry-run == 'true' }}
       run: melos publish -y --dry-run
+      shell: bash
+    - name: Run melos version
+      if: ${{ inputs.publish == 'true' }}
+      run: melos version --yes
       shell: bash
     - name: Run melos publish to pub.dev
       if: ${{ inputs.publish == 'true' }}
       run: melos publish -y --dry-run # Change to --no-dry-run once it is certain it works
       shell: bash
     - name: Create Pull Request with changes
-      if: ${{ inputs.publish == 'true' }}
+      if: ${{ inputs.publish == 'true' }} # Change this to be done only if PR is requested
       uses: peter-evans/create-pull-request@v5
       with:
         title: 'chore(release): Publish packages'

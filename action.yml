@@ -35,7 +35,7 @@ runs:
       shell: bash
     - name: Run melos version
       if: ${{ inputs.publish == 'true' }}
-      run: melos version
+      run: melos version --yes
       shell: bash
     - name: Run melos publish -y --dry-run
       if: ${{ inputs.publish-dry-run == 'true' }}

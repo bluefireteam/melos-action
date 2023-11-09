@@ -50,7 +50,7 @@ runs:
       run: command -v melos || echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
       shell: bash
     - name: Set git config
-      if: ${{ inputs.publish == 'true' || inputs.publish-dry-run == 'true' }}
+      if: ${{ inputs.version == 'true' }}
       run: |
         git config --global user.email "${{ inputs.git-email }}"
         git config --global user.name "${{ inputs.git-username }}"

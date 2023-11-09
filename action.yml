@@ -20,6 +20,14 @@ inputs:
     description: 'Whether packages should be versioned and published to pub.dev (default: false)'
     required: false
     default: 'false'
+  git-email:
+    description: 'The email to use when committing changes'
+    required: false
+    default: 'contact@blue-fire.xyz'
+  git-username:
+    description: 'The name to use when committing changes'
+    required: false
+    default: 'Melos Action'
 runs:
   using: composite
   steps:
@@ -33,8 +41,14 @@ runs:
     - name: Add melos to PATH
       run: command -v melos || echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
       shell: bash
+    - name: Set git config
+      if: ${{ inputs.publish == 'true' || inputs.publish-dry-run == 'true' }}
+      run: |
+        git config --global user.email "${{ inputs.git-email }}"
+        git config --global user.name "${{ inputs.git-username }}"
+      shell: bash
     - name: Run melos version
-      if: ${{ inputs.publish == 'true' }}
+      if: ${{ inputs.publish == 'true' || inputs.publish-dry-run == 'true' }}
       run: melos version --yes
       shell: bash
     - name: Run melos publish -y --dry-run

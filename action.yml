@@ -12,8 +12,12 @@ inputs:
     description: 'Whether bootstrap should run or not (default: true)'
     required: false
     default: 'true'
+  publish-dry-run:
+    description: 'Whether packages should be versioned and dry-run published (default: false)'
+    required: false
+    default: 'false'
   publish:
-    description: 'Whether packages should be versioned and published (default: false)'
+    description: 'Whether packages should be versioned and published to pub.dev (default: false)'
     required: false
     default: 'false'
 runs:
@@ -33,11 +37,11 @@ runs:
       if: ${{ inputs.publish == 'true' }}
       run: melos version
       shell: bash
-    - name: Run melos publish --dry-run
-      if: ${{ inputs.publish == 'true' }}
+    - name: Run melos publish -y --dry-run
+      if: ${{ inputs.publish-dry-run == 'true' }}
       run: melos publish --dry-run
       shell: bash
-    - name: Run melos publish --no-dry-run
+    - name: Run melos publish -y --no-dry-run
       if: ${{ inputs.publish == 'true' }}
       run: melos publish --dry-run # Change to --no-dry-run once it is certain it works
       shell: bash

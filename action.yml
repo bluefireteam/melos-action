@@ -12,8 +12,8 @@ inputs:
     description: 'Whether bootstrap should run or not (default: true)'
     required: false
     default: 'true'
-  version:
-    description: 'Whether packages should be versioned and published to pub.dev (default: false)'
+  run-versioning:
+    description: 'Whether packages should be versioned (default: false)'
     required: false
     default: 'false'
   publish-dry-run:
@@ -32,7 +32,7 @@ inputs:
     description: 'The email to use when committing changes'
     required: false
     default: 'contact@blue-fire.xyz'
-  git-username:
+  git-name:
     description: 'The name to use when committing changes'
     required: false
     default: 'Melos Action'
@@ -50,13 +50,13 @@ runs:
       run: command -v melos || echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
       shell: bash
     - name: 'Set up git config for email and name'
-      if: ${{ inputs.publish == 'true' || inputs.version == 'true' }}
+      if: ${{ inputs.publish == 'true' || inputs.run-versioning == 'true' }}
       run: |
         git config --global user.email "${{ inputs.git-email }}"
-        git config --global user.name "${{ inputs.git-username }}"
+        git config --global user.name "${{ inputs.git-name }}"
       shell: bash
     - name: 'Run melos version (dry run)'
-      if: ${{ inputs.version == 'true' }}
+      if: ${{ inputs.run-versioning == 'true' }}
       run: melos version --yes --no-git-tag-version
       shell: bash
     - name: 'Run melos publish (dry run)'

@@ -11,8 +11,21 @@ inputs:
   run-bootstrap:
     description: 'Whether bootstrap should run or not (default: true)'
     required: false
+    default: 'true'
+  publish:
+    description: 'Whether packages should be versioned and published (default: false)'
+    required: false
+    default: 'false'
 runs:
   using: composite
   steps:
-    - run: $GITHUB_ACTION_PATH/setup.sh "${{ inputs.melos-version }}" "${{ inputs.run-bootstrap }}"
+    - name: Activate melos
+      run: dart pub global activate melos "${{ inputs.melos-version }}"
+      shell: bash
+    - name: Run bootstrap
+      if: ${{ inputs.run-bootstrap }} == 'true'
+      run: dart pub global run melos bootstrap
+      shell: bash
+    - name: Add melos to PATH
+      run: command -v melos || echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
       shell: bash

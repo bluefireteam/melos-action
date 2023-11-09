@@ -49,15 +49,12 @@ runs:
     - name: Add melos to PATH
       run: command -v melos || echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
       shell: bash
-    - name: Set git config
+    - name: Run melos version (dry run)
       if: ${{ inputs.version == 'true' }}
       run: |
         git config --global user.email "${{ inputs.git-email }}"
         git config --global user.name "${{ inputs.git-username }}"
-      shell: bash
-    - name: Run melos version (dry run)
-      if: ${{ inputs.version == 'true' }}
-      run: melos version --yes --no-git-tag-version
+        melos version --yes --no-git-tag-version
       shell: bash
     - name: Run melos publish (dry run)
       if: ${{ inputs.publish-dry-run == 'true' }}
@@ -76,5 +73,8 @@ runs:
       shell: bash
     - name: Push tags to repository
       if: ${{ inputs.publish == 'true' }}
-      run: git push --tags
+      run: |
+        git config user.name "${GITHUB_ACTOR}"
+        git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+        git push --tags
       shell: bash

@@ -6,7 +6,7 @@ branding:
   color: purple
 inputs:
   melos-version:
-    description: The Melos version to make available on the path
+    description: 'The Melos version to make available on the path'
     required: false
   run-bootstrap:
     description: 'Whether bootstrap should run or not (default: true)'
@@ -39,42 +39,42 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Activate melos
+    - name: 'Activate melos'
       run: dart pub global activate melos ${{ inputs.melos-version }}
       shell: bash
-    - name: Run melos bootstrap
+    - name: 'Run melos bootstrap'
       if: ${{ inputs.run-bootstrap == 'true' }}
       run: dart pub global run melos bootstrap
       shell: bash
-    - name: Add melos to PATH
+    - name: 'Add melos to PATH'
       run: command -v melos || echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
       shell: bash
-    - name: Set git config
-      if: ${{ inputs.publish == 'true' || inputs.publish-dry-run == 'true' }}
+    - name: 'Set up git config for email and name'
+      if: ${{ inputs.publish == 'true' || inputs.version == 'true' }}
       run: |
         git config --global user.email "${{ inputs.git-email }}"
         git config --global user.name "${{ inputs.git-username }}"
       shell: bash
-    - name: Run melos version (dry run)
+    - name: 'Run melos version (dry run)'
       if: ${{ inputs.version == 'true' }}
       run: melos version --yes --no-git-tag-version
       shell: bash
-    - name: Run melos publish (dry run)
+    - name: 'Run melos publish (dry run)'
       if: ${{ inputs.publish-dry-run == 'true' }}
       run: melos publish -y --dry-run
       shell: bash
-    - name: Create Pull Request with changes
+    - name: 'Create Pull Request with changes'
       if: ${{ inputs.create-pr == 'true' }}
       uses: peter-evans/create-pull-request@v5
       with:
         title: 'chore(release): Publish packages'
         body: 'Prepared all packages to be released to pub.dev'
         branch: release-${{github.run_id}}
-    - name: Run melos publish to pub.dev
+    - name: 'Run melos publish to pub.dev'
       if: ${{ inputs.publish == 'true' }}
-      run: melos publish --git-tag-version -y --dry-run # Change to --no-dry-run once it is certain it works
+      run: melos publish --git-tag-version -y --no-dry-run
       shell: bash
-    - name: Push tags to repository
+    - name: 'Push tags to repository'
       if: ${{ inputs.publish == 'true' }}
       run: git push --tags
       shell: bash

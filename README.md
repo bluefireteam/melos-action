@@ -92,8 +92,12 @@ steps:
 ### Automatic versioning and publishing
 
 It is recommended that you read through and follow the set up steps at
-[https://dart.dev/tools/pub/automated-publishing](dart.dev) before continuing,
+[dart.dev](https://dart.dev/tools/pub/automated-publishing) before continuing,
 not applicable for dry-runs of course.
+
+Remember that if your package isn't already published to pub.dev you need to
+manually publish it the first time, after that you can use the action to
+automatically publish it.
 
 If you want to automatically release your packages for example when a new PR is
 merged you have a few different options:

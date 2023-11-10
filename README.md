@@ -156,6 +156,7 @@ jobs:
    name: Publish packages
    permissions:
      contents: write
+     id-token: write # Required for authentication using OIDC
    runs-on: [ ubuntu-latest ]
    if: contains(github.event.head_commit.message, 'chore(release)')
    steps:
@@ -183,6 +184,7 @@ jobs:
    name: Publish packages
    permissions:
      contents: write
+     id-token: write # Required for authentication using OIDC
    runs-on: [ ubuntu-latest ]
    steps:
      - uses: actions/checkout@v3

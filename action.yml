@@ -20,6 +20,10 @@ inputs:
     description: 'Whether packages should be dry-run published (default: false)'
     required: false
     default: 'false'
+  tag:
+    description: 'Whether packages should be tagged and pushed to the repository (default: false)'
+    required: false
+    default: 'false'
   publish:
     description: 'Whether packages should be published to pub.dev (default: false)'
     required: false
@@ -70,16 +74,22 @@ runs:
         title: 'chore(release): Publish packages'
         body: 'Prepared all packages to be released to pub.dev'
         branch: release-${{github.run_id}}
-    - name: 'Installs the Dart SDK and sets up the pipeline for usage with pub.dev'
-      if: ${{ inputs.publish == 'true' }}
-      uses: dart-lang/setup-dart@v1
     - name: 'Create and push tags to the repository'
-      if: ${{ inputs.publish == 'true' }}
+      if: ${{ inputs.tag == 'true' }}
       run: |
-        melos exec -c 1 --no-private -- git tag \$MELOS_PACKAGE_NAME_v\$MELOS_PACKAGE_VERSION && \
+        melos exec -c 1 --no-private -- git tag \$MELOS_PACKAGE_NAME-v\$MELOS_PACKAGE_VERSION && \
         git push --tags
       shell: bash
-    - name: 'Run melos publish to pub.dev'
+    - name: 'Extract tag info'
       if: ${{ inputs.publish == 'true' }}
-      run: melos publish -y --no-dry-run
+      run: |
+        PACKAGE_NAME=$(sed -E 's/([a-z0-9_]+)-v([0-9]+\.[0-9]+\.[0-9]+)/\1/' <<< "${{ github.ref }}") && \
+        echo "Tag name prefix: $PACKAGE_NAME"
+      shell: bash
+    - name: 'Installs the Dart SDK and sets up the pipeline for usage with pub.dev (this sets up OIDC)'
+      if: ${{ inputs.publish == 'true' }}
+      uses: dart-lang/setup-dart@v1
+    - name: 'Publish package related to tag to pub.dev'
+      if: ${{ inputs.publish == 'true' }}
+      run: melos publish -y --no-dry-run --scope=$PACKAGE_NAME
       shell: bash

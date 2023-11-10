@@ -70,11 +70,16 @@ runs:
         title: 'chore(release): Publish packages'
         body: 'Prepared all packages to be released to pub.dev'
         branch: release-${{github.run_id}}
+    - name: 'Installs the Dart SDK and sets up the pipeline for usage with pub.dev'
+      if: ${{ inputs.publish == 'true' }}
+      uses: dart-lang/setup-dart@v1
+    - name: 'Create and push tags to the repository'
+      if: ${{ inputs.publish == 'true' }}
+      run: |
+        melos exec -c 1 --no-private -- git tag \$MELOS_PACKAGE_NAME_v\$MELOS_PACKAGE_VERSION && \
+        git push --tags
+      shell: bash
     - name: 'Run melos publish to pub.dev'
       if: ${{ inputs.publish == 'true' }}
-      run: melos publish --git-tag-version -y --no-dry-run
-      shell: bash
-    - name: 'Push tags to repository'
-      if: ${{ inputs.publish == 'true' }}
-      run: git push --tags
+      run: melos publish -y --no-dry-run
       shell: bash

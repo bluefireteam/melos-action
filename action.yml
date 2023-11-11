@@ -84,7 +84,6 @@ runs:
       if: ${{ inputs.tag == 'true' }}
       uses: actions/github-script@v5
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const response = await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
             owner: context.repo.owner,

@@ -80,6 +80,20 @@ runs:
         melos exec -c 1 --no-private -- git tag \$MELOS_PACKAGE_NAME-v\$MELOS_PACKAGE_VERSION && \
         git push --tags
       shell: bash
+    - name: Trigger Another Workflow
+      if: ${{ inputs.tag == 'true' }}
+      uses: actions/github-script@v5
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const response = await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            workflow_id: 'publish.yml',
+            ref: 'refs/tags/melos_action_test-v0.0.12'
+          });
+
+          console.log(response.status);
     - name: 'Extract tag info'
       if: ${{ inputs.publish == 'true' }}
       run: |

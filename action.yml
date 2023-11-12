@@ -100,7 +100,7 @@ runs:
     - name: 'Extract tag info'
       if: ${{ inputs.publish == 'true' }}
       run: |
-        PACKAGE_NAME=$(sed -E 's/([a-z0-9_]+)-v([0-9]+\.[0-9]+\.[0-9]+)/\1/' <<< "${{ github.ref }}") && \
+        PACKAGE_NAME=$(sed -E 's/refs\/tags\/([a-z0-9_]+)-v([0-9]+\.[0-9]+\.[0-9]+)/\1/' <<< "${{ github.ref }}") && \
         echo "Tag name prefix: $PACKAGE_NAME"
       shell: bash
     - name: 'Installs the Dart SDK and sets up the pipeline for usage with pub.dev (this sets up OIDC)'

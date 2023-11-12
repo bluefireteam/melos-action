@@ -83,6 +83,8 @@ runs:
     - name: Trigger Another Workflow
       if: ${{ inputs.tag == 'true' }}
       run: gh workflow run publish.yml -r melos_action_test-v0.0.20
+      env:
+        GH_TOKEN: ${{ github.token }}
       shell: bash
       #uses: actions/github-script@v5
       #with:

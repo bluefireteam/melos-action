@@ -82,17 +82,21 @@ runs:
       shell: bash
     - name: Trigger Another Workflow
       if: ${{ inputs.tag == 'true' }}
-      uses: actions/github-script@v5
-      with:
-        script: |
-          const response = await github.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            workflow_id: 'publish.yml',
-            ref: 'refs/tags/melos_action_test-v0.0.12'
-          });
+      run: gh workflow run publish.yml -r melos_action_test-v0.0.20
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      shell: bash
+      #uses: actions/github-script@v5
+      #with:
+      #  script: |
+      #    const response = await github.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
+      #      owner: context.repo.owner,
+      #      repo: context.repo.repo,
+      #      workflow_id: 'publish.yml',
+      #      ref: 'refs/tags/melos_action_test-v0.0.12'
+      #    });
 
-          console.log(response.status);
+      #    console.log(response.status);
     - name: 'Extract tag info'
       if: ${{ inputs.publish == 'true' }}
       run: |

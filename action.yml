@@ -68,7 +68,7 @@ runs:
       run: melos version --yes --no-git-tag-version
       shell: bash
     - name: 'Run melos version as a prerelease (dry run)'
-      if: ${{ inputs.run-versioning == 'true' }}
+      if: ${{ inputs.run-versioning-prerelease == 'true' }}
       run: melos version --yes --no-git-tag-version --prerelease
       shell: bash
     - name: 'Run melos publish (dry run)'

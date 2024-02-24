@@ -16,6 +16,10 @@ inputs:
     description: 'Whether packages should be versioned (default: false)'
     required: false
     default: 'false'
+  run-versioning-prerelease:
+    description: 'Whether packages should be versioned as a prerelease (default: false)'
+    required: false
+    default: 'false'
   publish-dry-run:
     description: 'Whether packages should be dry-run published (default: false)'
     required: false
@@ -54,14 +58,18 @@ runs:
       run: command -v melos || echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
       shell: bash
     - name: 'Set up git config for email and name'
-      if: ${{ inputs.publish == 'true' || inputs.run-versioning == 'true' }}
+      if: ${{ inputs.publish == 'true' || inputs.run-versioning == 'true' || inputs.run-versioning-prerelease == 'true' }}
       run: |
         git config --global user.email "${{ inputs.git-email }}"
         git config --global user.name "${{ inputs.git-name }}"
       shell: bash
-    - name: 'Run melos version (dry run)'
+    - name: 'Run melos version'
       if: ${{ inputs.run-versioning == 'true' }}
       run: melos version --yes --no-git-tag-version
+      shell: bash
+    - name: 'Run melos version as a prerelease'
+      if: ${{ inputs.run-versioning-prerelease == 'true' }}
+      run: melos version --yes --no-git-tag-version --prerelease
       shell: bash
     - name: 'Run melos publish (dry run)'
       if: ${{ inputs.publish-dry-run == 'true' }}

@@ -63,11 +63,11 @@ runs:
         git config --global user.email "${{ inputs.git-email }}"
         git config --global user.name "${{ inputs.git-name }}"
       shell: bash
-    - name: 'Run melos version (dry run)'
+    - name: 'Run melos version'
       if: ${{ inputs.run-versioning == 'true' }}
       run: melos version --yes --no-git-tag-version
       shell: bash
-    - name: 'Run melos version as a prerelease (dry run)'
+    - name: 'Run melos version as a prerelease'
       if: ${{ inputs.run-versioning-prerelease == 'true' }}
       run: melos version --yes --no-git-tag-version --prerelease
       shell: bash

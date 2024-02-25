@@ -92,6 +92,10 @@ steps:
 
 ### Automatic versioning and publishing
 
+NOTE: This won't work until
+[dart-lang/pub.dev#7462](https://github.com/dart-lang/pub-dev/pull/7462) is
+merged.
+
 It is recommended that you read through and follow the set up steps at
 [dart.dev](https://dart.dev/tools/pub/automated-publishing) before continuing,
 not applicable for dry-runs of course.

@@ -58,9 +58,9 @@ the example below.
 
 ```yaml
 steps:
-  - uses: actions/checkout@v2
+  - uses: actions/checkout@v4
   - uses: subosito/flutter-action@v2
-  - uses: bluefireteam/melos-action@v1
+  - uses: bluefireteam/melos-action@v3
     with:
       run-bootstrap: false
 ```
@@ -82,9 +82,9 @@ version like this `'>=1.2.0 < 1.3.0'` which would allow any version between
 
 ```yaml
 steps:
-- uses: actions/checkout@v2
+- uses: actions/checkout@v4
 - uses: subosito/flutter-action@v2
-- uses: bluefireteam/melos-action@v1
+- uses: bluefireteam/melos-action@v3
   with:
     melos-version: '1.2.0'
 ```
@@ -142,7 +142,7 @@ jobs:
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, 'chore(release)')"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
       - uses: bluefireteam/melos-action@v3
         with:
@@ -196,7 +196,7 @@ jobs:
      id-token: write # Required for authentication using OIDC
    runs-on: [ ubuntu-latest ]
    steps:
-     - uses: actions/checkout@v3
+     - uses: actions/checkout@v4
      - uses: subosito/flutter-action@v2
      - uses: bluefireteam/melos-action@v3
        with:
@@ -224,7 +224,7 @@ jobs:
    name: Verify packages
    runs-on: [ ubuntu-latest ]
    steps:
-     - uses: actions/checkout@v3
+     - uses: actions/checkout@v4
      - uses: subosito/flutter-action@v2
      - uses: bluefireteam/melos-action@v3
        with:

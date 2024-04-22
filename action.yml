@@ -55,11 +55,11 @@ runs:
       run: dart pub global activate melos ${{ inputs.melos-version }}
       shell: bash
     - name: 'Run melos bootstrap'
-      if: ${{ inputs.run-bootstrap == 'true' && inputs.enforce-lockfile == 'true' }}
+      if: ${{ inputs.run-bootstrap == 'true' && inputs.enforce-lockfile != 'true' }}
       run: dart pub global run melos bootstrap
       shell: bash
     - name: 'Run melos bootstrap --enforce-lockfile'
-      if: ${{ inputs.run-bootstrap == 'true' && inputs.enforce-lockfile != 'true' }}
+      if: ${{ inputs.run-bootstrap == 'true' && inputs.enforce-lockfile == 'true' }}
       run: dart pub global run melos bootstrap --enforce-lockfile
       shell: bash
     - name: 'Add melos to PATH'

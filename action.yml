@@ -55,8 +55,12 @@ runs:
       run: dart pub global activate melos ${{ inputs.melos-version }}
       shell: bash
     - name: 'Run melos bootstrap'
-      if: ${{ inputs.run-bootstrap == 'true' }}
-      run: dart pub global run melos bootstrap${{ inputs.enforce-lock-file == 'true' ? ' --enforce-lock-file' : '' }}
+      if: ${{ inputs.run-bootstrap == 'true' && inputs.enforce-lockfile == 'true' }}
+      run: dart pub global run melos bootstrap
+      shell: bash
+    - name: 'Run melos bootstrap --enforce-lockfile'
+      if: ${{ inputs.run-bootstrap == 'true' && inputs.enforce-lockfile != 'true' }}
+      run: dart pub global run melos bootstrap --enforce-lockfile
       shell: bash
     - name: 'Add melos to PATH'
       run: command -v melos || echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH

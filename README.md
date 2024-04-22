@@ -45,6 +45,7 @@ action, they are all optional.
 |---------------------------|-----------------------|----------------------------------------------------------|
 | melos-version             | latest                | The version of Melos to activate.                        |
 | run-bootstrap             | true                  | Whether to run `melos bootstrap` after activating Melos. |
+| enforce-lockfile          | false                 | Whether the versions in the lockfiles should be enforced.|
 | run-versioning            | false                 | Whether packages should be versioned.                    |
 | run-versioning-prerelease | false                 | Whether packages should be versioned as a prerelease.    |
 | publish-dry-run           | false                 | Whether packages should be dry-run published.            |

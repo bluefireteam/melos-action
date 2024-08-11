@@ -17,6 +17,7 @@ jobs:
         with:
           run-versioning: true
           publish-dry-run: true
+          tag: true
           publish: true
           create-pr: true
           git-email: contact@blue-fire.xyz

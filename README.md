@@ -93,10 +93,6 @@ steps:
 
 ### Automatic versioning and publishing
 
-NOTE: This won't work until
-[dart-lang/pub.dev#7462](https://github.com/dart-lang/pub-dev/pull/7462) is
-merged.
-
 It is recommended that you read through and follow the set up steps at
 [dart.dev](https://dart.dev/tools/pub/automated-publishing) before continuing,
 not applicable for dry-runs of course.
@@ -108,130 +104,27 @@ automatically publish it.
 If you want to automatically release your packages for example when a new PR is
 merged you have a few different options:
 
-1. Create two actions, one which versions and dry-run publishes your packages
+1. **Version and release on workflow dispatch:**
+   Create two actions: one which versions and dry-run publishes your packages
+   and then creates a release preparation PR when trigger this workflow. 
+   And a second action that publishes your packages to pub.dev when the release
+   preparation PR is merged.
+2. **Version and release on each PR:**
+   Create two actions, one which versions and dry-run publishes your packages
    and then creates a release preparation PR every time a PR from a normal user
-   is merged and then a second action that publishes your packages to pub.dev 
+   is merged and then a second action that publishes your packages to pub.dev
    when the release preparation PR is merged.
-2. Directly publish your packages to pub.dev when a PR from a normal user is
+3. **Directly publish to pub.dev after user PR is merged:**
+   Directly publish your packages to pub.dev when a PR from a normal user is
    merged and create a PR with the versioning changes afterwards.
-3. Only use the action to ensure in your pipeline that your packages are
+4. **Only run dry-run versioning and publishing as a check:**
+   Only use the action to ensure in your pipeline that your packages are
    releasable, i.e doesn't fail any dry run.
 
 And this note is worth repeating - Remember to check the "Allow GitHub Actions
 to create and approve pull requests" checkbox in the bottom of the
 Actions > General section of your repository settings if you want to use
 `create-pr: true`.
-
-
-### 1. Version and release on each PR
-
-Create a file with the following content name `prepare-release.yaml` and place
-it in `.github/workflows/`:
-
-```yaml
-name: Prepare release
-on:
-  push:
-    branches: [main]
-
-jobs:
-  prepare-release:
-    name: Prepare release
-    permissions:
-      contents: write
-      pull-requests: write
-    runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, 'chore(release)')"
-    steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-      - uses: bluefireteam/melos-action@v3
-        with:
-          run-versioning: true
-          publish-dry-run: true
-          create-pr: true
-```
-
-Create a second file with the following content named `publish.yaml` and place
-it in `.github/workflows/`:
-
-```yaml
-name: Publish packages
-on:
-  push:
-    branches: [main]
-
-jobs:
- publish-packages:
-   name: Publish packages
-   permissions:
-     contents: write
-     id-token: write # Required for authentication using OIDC
-   runs-on: [ ubuntu-latest ]
-   if: contains(github.event.head_commit.message, 'chore(release)')
-   steps:
-     - uses: actions/checkout@v3
-     - uses: subosito/flutter-action@v2
-     - uses: bluefireteam/melos-action@v3
-       with:
-         publish: true
-```
-
-
-### 2. Directly publish to pub.dev after each PR is merged
-
-Create a second file with the following content named `publish.yaml` and place
-it in `.github/workflows/`:
-
-```yaml
-name: Publish packages
-on:
-  push:
-    branches: [main]
-
-jobs:
- publish-packages:
-   name: Publish packages
-   permissions:
-     contents: write
-     id-token: write # Required for authentication using OIDC
-   runs-on: [ ubuntu-latest ]
-   steps:
-     - uses: actions/checkout@v4
-     - uses: subosito/flutter-action@v2
-     - uses: bluefireteam/melos-action@v3
-       with:
-         run-versioning: true
-         publish-dry-run: true
-         publish: true
-         create-pr: true
-```
-
-
-### 3. Only run dry-run versioning and publishing as a check
-
-Create a second file with the following content named `verify-releasable.yaml`
-and place it in `.github/workflows/`:
-
-```yaml
-name: Verify that the packages are releasable.
-on:
-  push:
-    branches: [main]
-  pull_request:
-
-jobs:
- publish-packages:
-   name: Verify packages
-   runs-on: [ ubuntu-latest ]
-   steps:
-     - uses: actions/checkout@v4
-     - uses: subosito/flutter-action@v2
-     - uses: bluefireteam/melos-action@v3
-       with:
-         run-versioning: true
-         publish-dry-run: true
-```
 
 See the [examples directory](./examples) to get files that you can copy and
 paste into your repository.

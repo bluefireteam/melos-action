@@ -96,10 +96,19 @@ runs:
         melos exec -c 1 --no-private -- git tag \$MELOS_PACKAGE_NAME-v\$MELOS_PACKAGE_VERSION && \
         git push --tags
       shell: bash
+    - name: 'Extract tag info'
+      if: ${{ inputs.publish == 'true' }}
+      env:
+       GITHUBREF: ${{ github.ref }}
+      run: |
+        PACKAGE_NAME=$(sed -E 's/refs\/tags\/([a-z0-9_]+)-v([0-9]+\.[0-9]+\.[0-9]+)/\1/' <<< $GITHUBREF) && \
+        echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
+        echo "Package name: $PACKAGE_NAME"
+      shell: bash
     - name: 'Installs the Dart SDK and sets up the pipeline for usage with pub.dev (this sets up OIDC)'
       if: ${{ inputs.publish == 'true' }}
       uses: dart-lang/setup-dart@v1
     - name: 'Publish package related to tag to pub.dev'
       if: ${{ inputs.publish == 'true' }}
-      run: melos publish -y --no-dry-run
+      run: melos publish -y --no-dry-run --scope=$PACKAGE_NAME
       shell: bash

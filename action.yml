@@ -14,7 +14,7 @@ inputs:
     default: 'true'
   enforce-lockfile:
     description: 'Whether the versions in the lockfiles should be enforced (default: false)'
-    requires: false
+    required: false
     default: 'false'
   run-versioning:
     description: 'Whether packages should be versioned (default: false)'

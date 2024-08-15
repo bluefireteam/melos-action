@@ -41,18 +41,19 @@ steps:
 There are a few parameters that can be set to customize the behavior of the
 action, they are all optional.
 
-| Parameter                 | Default               | Description                                              |
-|---------------------------|-----------------------|----------------------------------------------------------|
-| melos-version             | latest                | The version of Melos to activate.                        |
-| run-bootstrap             | true                  | Whether to run `melos bootstrap` after activating Melos. |
-| enforce-lockfile          | false                 | Whether the versions in the lockfiles should be enforced.|
-| run-versioning            | false                 | Whether packages should be versioned.                    |
-| run-versioning-prerelease | false                 | Whether packages should be versioned as a prerelease.    |
-| publish-dry-run           | false                 | Whether packages should be dry-run published.            |
-| publish                   | false                 | Whether packages should be published to pub.dev.         |
-| create-pr                 | false                 | Whether to create a PR with the changes made by Melos.   |
-| git-email                 | contact@blue-fire.xyz | The email to use when committing changes.                |
-| git-name                  | Melos Action          | The name to use when committing changes.                 |
+| Parameter                 | Default               | Description                                               |
+|---------------------------|-----------------------|-----------------------------------------------------------|
+| melos-version             | latest                | The version of Melos to activate.                         |
+| run-bootstrap             | true                  | Whether to run `melos bootstrap` after activating Melos.  |
+| enforce-lockfile          | false                 | Whether the versions in the lockfiles should be enforced. |
+| run-versioning            | false                 | Whether packages should be versioned.                     |
+| run-versioning-prerelease | false                 | Whether packages should be versioned as a prerelease.     |
+| publish-dry-run           | false                 | Whether packages should be dry-run published.             |
+| publish                   | false                 | Whether packages should be published to pub.dev.          |
+| create-pr                 | false                 | Whether to create a PR with the changes made by Melos.    |
+| tag                       | false                 | Whether tags for the packages should be created.          |
+| git-email                 | contact@blue-fire.xyz | The email to use when committing changes.                 |
+| git-name                  | Melos Action          | The name to use when committing changes.                  |
 
 To set a specific parameter you use the `with` keyword in your action, like in
 the example below.
@@ -104,22 +105,19 @@ automatically publish it.
 If you want to automatically release your packages for example when a new PR is
 merged you have a few different options:
 
-1. **Version and release on workflow dispatch:**
-   Create two actions: one which versions and dry-run publishes your packages
+1. **[Version and release on workflow dispatch:](./examples/01-workflow-dispatch)**
+   Create three actions: one which versions and dry-run publishes your packages
    and then creates a release preparation PR when trigger this workflow. 
-   And a second action that publishes your packages to pub.dev when the release
-   preparation PR is merged.
-2. **Version and release on each PR:**
-   Create two actions, one which versions and dry-run publishes your packages
-   and then creates a release preparation PR every time a PR from a normal user
-   is merged and then a second action that publishes your packages to pub.dev
-   when the release preparation PR is merged.
-3. **Directly publish to pub.dev after user PR is merged:**
-   Directly publish your packages to pub.dev when a PR from a normal user is
-   merged and create a PR with the versioning changes afterwards.
-4. **Only run dry-run versioning and publishing as a check:**
+   And a second action that creates a tag when the PR is merged.
+   In a third action a manual dispatch workflow is created to publish the created
+   tag to pub.dev.
+2. **[Version and release on each PR:](./examples/02-release-on-pr)**
+   Create three actions: one which versions and dry-run publishes your packages
+   and then creates a release preparation PR every time a PR from a contributor
+   is merged. The other two are the same as in 1).
+3. **[Only run dry-run versioning and publishing as a check:](./examples/03-check-only)**
    Only use the action to ensure in your pipeline that your packages are
-   releasable, i.e doesn't fail any dry run.
+   releasable, i.e. doesn't fail any dry run.
 
 And this note is worth repeating - Remember to check the "Allow GitHub Actions
 to create and approve pull requests" checkbox in the bottom of the

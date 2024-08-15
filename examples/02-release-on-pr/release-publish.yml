@@ -1,7 +1,10 @@
 name: Publish packages
 on:
-  push:
-    branches: [main]
+  # Enable to also publish, when pushing a tag
+  #push:
+  #  tags:
+  #    - '*'
+  workflow_dispatch:
 
 jobs:
   publish-packages:
@@ -16,7 +19,6 @@ jobs:
       - uses: subosito/flutter-action@v2
       - uses: bluefireteam/melos-action@v3
         with:
-          tag: true
           publish: true
           git-email: contact@blue-fire.xyz
           git-name: Melos Action

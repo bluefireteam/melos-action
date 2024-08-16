@@ -96,7 +96,9 @@ steps:
 
 It is recommended that you read through and follow the set-up steps at
 [dart.dev](https://dart.dev/tools/pub/automated-publishing) before continuing,
-not applicable for dry-runs of course.
+not applicable for dry-runs of course. Ensure that **publishing from `workflow_dispatch` events** is enabled:
+
+![Pub.dev settings for publishing from workflow_dispatch](./docs/images/publish-pub-dev-settings.png)
 
 Remember that if your package isn't already published to pub.dev you need to
 manually publish it the first time, after that you can use the action to
@@ -104,6 +106,8 @@ automatically publish it.
 
 If you want to semi-automatically release your packages for example when a new PR is
 merged you have a few different options:
+
+<img style="float: right;" src="docs/images/publish-workflow-dispatch-tag.png" width="200">
 
 1. **[Version and release on workflow dispatch:](./examples/01-workflow-dispatch)**
    Create three actions: one which versions and dry-run publishes your packages
@@ -118,6 +122,9 @@ merged you have a few different options:
 3. **[Only run dry-run versioning and publishing as a check:](./examples/03-check-only)**
    Only use the action to ensure in your pipeline that your packages are
    releasable, i.e. doesn't fail any dry run.
+
+
+**Note:** Publishing directly from GitHub Actions to pub.dev only works if dispatched from a _tag_, not from a branch.
 
 And this note is worth repeating - Remember to check the "Allow GitHub Actions
 to create and approve pull requests" checkbox in the bottom of the

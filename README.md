@@ -98,7 +98,7 @@ It is recommended that you read through and follow the set-up steps at
 [dart.dev](https://dart.dev/tools/pub/automated-publishing) before continuing,
 not applicable for dry-runs of course. Ensure that **publishing from `workflow_dispatch` events** is enabled:
 
-![Pub.dev settings for publishing from workflow_dispatch](./docs/images/publish-pub-dev-settings.png)
+<img src="docs/images/publish-pub-dev-settings.png" alt="Pub.dev settings for publishing from workflow_dispatch" width="80%">
 
 Remember that if your package isn't already published to pub.dev you need to
 manually publish it the first time, after that you can use the action to

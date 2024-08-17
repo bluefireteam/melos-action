@@ -1,0 +1,19 @@
+name: Verify that the packages are releasable.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  publish-packages:
+    name: Verify packages
+    runs-on: [ ubuntu-latest ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+      - uses: bluefireteam/melos-action@v3
+        with:
+          run-versioning: true
+          publish-dry-run: true
+          git-email: contact@blue-fire.xyz
+          git-name: Melos Action

@@ -107,7 +107,7 @@ automatically publish it.
 If you want to semi-automatically release your packages for example when a new PR is
 merged you have a few different options:
 
-<img src="docs/images/publish-workflow-dispatch-tag.png" style="bottom:0;" width="300" align="right">
+<img src="docs/images/publish-workflow-dispatch-tag.png" style="bottom:0;" width="30%" align="right">
 
 1. **[Version and release on workflow dispatch:](./examples/01-workflow-dispatch)**
    Create three actions: one which versions and dry-run publishes your packages

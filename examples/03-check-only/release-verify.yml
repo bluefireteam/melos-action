@@ -15,5 +15,3 @@ jobs:
         with:
           run-versioning: true
           publish-dry-run: true
-          git-email: contact@blue-fire.xyz
-          git-name: Melos Action

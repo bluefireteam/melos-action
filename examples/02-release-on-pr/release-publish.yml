@@ -19,5 +19,3 @@ jobs:
       - uses: bluefireteam/melos-action@v3
         with:
           publish: true
-          git-email: contact@blue-fire.xyz
-          git-name: Melos Action

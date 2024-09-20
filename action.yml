@@ -43,11 +43,11 @@ inputs:
   git-email:
     description: 'The email to use when committing changes'
     required: false
-    default: 'contact@blue-fire.xyz'
+    default: 'github-actions[bot]@users.noreply.github.com'
   git-name:
     description: 'The name to use when committing changes'
     required: false
-    default: 'Melos Action'
+    default: 'github-actions[bot]'
 runs:
   using: composite
   steps:

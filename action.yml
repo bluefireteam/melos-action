@@ -93,9 +93,9 @@ runs:
     - name: 'Create and push tags to the repository'
       if: ${{ inputs.tag == 'true' }}
       run: |
-        # We don't care about errors due to creating new tags (`;` separator instead of `&&`)
+        # We don't care about errors due to creating new tags (`|| true`)
         # since for all packages that didn't get a new release, the tag already exists.
-        melos exec -c 1 --no-private -- git tag \$MELOS_PACKAGE_NAME-v\$MELOS_PACKAGE_VERSION; \
+        melos exec -c 1 --no-private -- git tag \$MELOS_PACKAGE_NAME-v\$MELOS_PACKAGE_VERSION || true
         git push --tags
       shell: bash
     - name: 'Extract tag info'

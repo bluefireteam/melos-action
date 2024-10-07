@@ -112,9 +112,10 @@ merged you have a few different options:
 1. **[Version and release on workflow dispatch:](./examples/01-workflow-dispatch)**
    Create three actions: one which versions and dry-run publishes your packages
    and then creates a release preparation PR when this workflow is triggered. 
-   And a second action that creates a tag when the PR is merged.
-   In a third action a manual dispatch workflow is created to publish the created
-   tag to pub.dev.
+   And a second action that creates a tag when the PR is merged and starts the
+   release workflow.
+   In the third action a dispatch workflow is created to publish the created
+   tags to pub.dev.
 2. **[Version and release on each PR:](./examples/02-release-on-pr)**
    Create three actions: one which versions and dry-run publishes your packages
    and then creates a release preparation PR every time a PR from a contributor

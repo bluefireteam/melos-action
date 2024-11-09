@@ -41,19 +41,20 @@ steps:
 There are a few parameters that can be set to customize the behavior of the
 action, they are all optional.
 
-| Parameter                 | Default               | Description                                               |
-|---------------------------|-----------------------|-----------------------------------------------------------|
-| melos-version             | latest                | The version of Melos to activate.                         |
-| run-bootstrap             | true                  | Whether to run `melos bootstrap` after activating Melos.  |
-| enforce-lockfile          | false                 | Whether the versions in the lockfiles should be enforced. |
-| run-versioning            | false                 | Whether packages should be versioned.                     |
-| run-versioning-prerelease | false                 | Whether packages should be versioned as a prerelease.     |
-| publish-dry-run           | false                 | Whether packages should be dry-run published.             |
-| publish                   | false                 | Whether packages should be published to pub.dev.          |
-| create-pr                 | false                 | Whether to create a PR with the changes made by Melos.    |
-| tag                       | false                 | Whether tags for the packages should be created.          |
-| git-email                 | contact@blue-fire.xyz | The email to use when committing changes.                 |
-| git-name                  | Melos Action          | The name to use when committing changes.                  |
+| Parameter                 | Default               | Description                                                      |
+|---------------------------|-----------------------|------------------------------------------------------------------|
+| melos-version             | latest                | The version of Melos to activate.                                |
+| run-bootstrap             | true                  | Whether to run `melos bootstrap` after activating Melos.         |
+| enforce-lockfile          | false                 | Whether the versions in the lockfiles should be enforced.        |
+| run-versioning            | false                 | Whether packages should be versioned.                            |
+| run-versioning-prerelease | false                 | Whether packages should be versioned as a prerelease.            |
+| version-all               | false                 | Whether to include or exclude packages with `publish_to: "none"` |
+| publish-dry-run           | false                 | Whether packages should be dry-run published.                    |
+| publish                   | false                 | Whether packages should be published to pub.dev.                 |
+| create-pr                 | false                 | Whether to create a PR with the changes made by Melos.           |
+| tag                       | false                 | Whether tags for the packages should be created.                 |
+| git-email                 | contact@blue-fire.xyz | The email to use when committing changes.                        |
+| git-name                  | Melos Action          | The name to use when committing changes.                         |
 
 To set a specific parameter you use the `with` keyword in your action, like in
 the example below.

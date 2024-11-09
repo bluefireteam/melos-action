@@ -24,6 +24,10 @@ inputs:
     description: 'Whether packages should be versioned as a prerelease (default: false)'
     required: false
     default: 'false'
+  version-all:
+    description: 'Whether to include or exclude packages with `publish_to: "none"` (default: false)'
+    required: false
+    default: 'false'
   publish-dry-run:
     description: 'Whether packages should be dry-run published (default: false)'
     required: false
@@ -73,11 +77,11 @@ runs:
       shell: bash
     - name: 'Run melos version'
       if: ${{ inputs.run-versioning == 'true' }}
-      run: melos version --yes --no-git-tag-version
+      run: melos version --yes --no-git-tag-version ${{ (inputs.version-all == 'true' && '--all') || '' }}
       shell: bash
     - name: 'Run melos version as a prerelease'
       if: ${{ inputs.run-versioning-prerelease == 'true' }}
-      run: melos version --yes --no-git-tag-version --prerelease
+      run: melos version --yes --no-git-tag-version --prerelease ${{ (inputs.version-all == 'true' && '--all') || '' }}
       shell: bash
     - name: 'Run melos publish (dry run)'
       if: ${{ inputs.publish-dry-run == 'true' }}

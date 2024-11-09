@@ -48,7 +48,7 @@ action, they are all optional.
 | enforce-lockfile          | false                 | Whether the versions in the lockfiles should be enforced.        |
 | run-versioning            | false                 | Whether packages should be versioned.                            |
 | run-versioning-prerelease | false                 | Whether packages should be versioned as a prerelease.            |
-| version-all               | false                 | Whether to include or exclude packages with `publish_to: "none"` |
+| include-private           | false                 | Whether to include or exclude packages with `publish_to: "none"` |
 | publish-dry-run           | false                 | Whether packages should be dry-run published.                    |
 | publish                   | false                 | Whether packages should be published to pub.dev.                 |
 | create-pr                 | false                 | Whether to create a PR with the changes made by Melos.           |

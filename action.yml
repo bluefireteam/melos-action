@@ -24,6 +24,10 @@ inputs:
     description: 'Whether packages should be versioned as a prerelease (default: false)'
     required: false
     default: 'false'
+  include-private:
+    description: 'Whether to include or exclude packages with `publish_to: "none"` (default: false)'
+    required: false
+    default: 'false'
   publish-dry-run:
     description: 'Whether packages should be dry-run published (default: false)'
     required: false
@@ -73,11 +77,11 @@ runs:
       shell: bash
     - name: 'Run melos version'
       if: ${{ inputs.run-versioning == 'true' }}
-      run: melos version --yes --no-git-tag-version
+      run: melos version --yes --no-git-tag-version ${{ (inputs.include-private == 'true' && '--all') || '' }}
       shell: bash
     - name: 'Run melos version as a prerelease'
       if: ${{ inputs.run-versioning-prerelease == 'true' }}
-      run: melos version --yes --no-git-tag-version --prerelease
+      run: melos version --yes --no-git-tag-version --prerelease ${{ (inputs.include-private == 'true' && '--all') || '' }}
       shell: bash
     - name: 'Run melos publish (dry run)'
       if: ${{ inputs.publish-dry-run == 'true' }}
@@ -95,7 +99,7 @@ runs:
       run: |
         # We don't care about errors due to creating new tags (`|| true`)
         # since for all packages that didn't get a new release, the tag already exists.
-        melos exec -c 1 --no-private -- git tag \$MELOS_PACKAGE_NAME-v\$MELOS_PACKAGE_VERSION || true
+        melos exec -c 1 ${{ (inputs.include-private == 'true' && '--private') || '--no-private' }} -- git tag \$MELOS_PACKAGE_NAME-v\$MELOS_PACKAGE_VERSION || true
         git push --tags
       shell: bash
     - name: 'Extract tag info'

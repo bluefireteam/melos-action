@@ -106,8 +106,9 @@ runs:
       if: ${{ inputs.publish == 'true' }}
       env:
         GITHUBREF: ${{ github.ref }}
+      # Support semver, e.g.: "refs/tags/my_package-v1.2.3+alpha.1"
       run: |
-        PACKAGE_NAME=$(sed -E 's/refs\/tags\/([a-z0-9_]+)-v([0-9]+\.[0-9]+\.[0-9]+)/\1/' <<< $GITHUBREF) && \
+        PACKAGE_NAME=$(sed -E 's/refs\/tags\/([a-z0-9_]+)-v([0-9]+\.[0-9]+\.[0-9]+.*)$/\1/' <<< $GITHUBREF) && \
         echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
         echo "Package name: $PACKAGE_NAME"
       shell: bash

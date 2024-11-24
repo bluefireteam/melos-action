@@ -65,11 +65,7 @@ runs:
     - name: 'Run melos bootstrap'
       if: ${{ inputs.run-bootstrap == 'true' }}
       run: dart pub global run melos bootstrap ${{ inputs.enforce-lockfile == 'true' && '--enforce-lockfile' || '' }} ${{ inputs.bootstrap-no-example == 'true' && '--no-example' || '' }}
-      shell: bash
-    - name: 'Run melos bootstrap --enforce-lockfile'
-      if: ${{ inputs.run-bootstrap == 'true' && inputs.enforce-lockfile == 'true' }}
-      run: dart pub global run melos bootstrap --enforce-lockfile
-      shell: bash
+      shell: bash    
     - name: 'Add melos to PATH'
       run: command -v melos || echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
       shell: bash

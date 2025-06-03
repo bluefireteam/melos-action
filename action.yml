@@ -28,6 +28,10 @@ inputs:
     description: 'Whether packages should be versioned as a prerelease (default: false)'
     required: false
     default: 'false'
+  run-versioning-graduate:
+    description: 'Whether packages should be versioned with graduating prereleases to stable (default: false)'
+    required: false
+    default: 'false'
   include-private:
     description: 'Whether to include or exclude packages with `publish_to: "none"` (default: false)'
     required: false
@@ -82,6 +86,10 @@ runs:
     - name: 'Run melos version as a prerelease'
       if: ${{ inputs.run-versioning-prerelease == 'true' }}
       run: melos version --yes --no-git-tag-version --prerelease ${{ (inputs.include-private == 'true' && '--all') || '' }}
+      shell: bash
+    - name: 'Run melos version as and graduate prereleases'
+      if: ${{ inputs.run-versioning-graduate == 'true' }}
+      run: melos version --yes --no-git-tag-version --graduate ${{ (inputs.include-private == 'true' && '--all') || '' }}
       shell: bash
     - name: 'Run melos publish (dry run)'
       if: ${{ inputs.publish-dry-run == 'true' }}

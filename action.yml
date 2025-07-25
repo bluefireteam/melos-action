@@ -8,6 +8,10 @@ inputs:
   melos-version:
     description: 'The Melos version to make available on the path'
     required: false
+  dart-version:
+    description: 'The dart version to pass to dart-lang/setup-dart action used for publishing, this helps to avoid race condition when having flutter SDK setup with the version different from the latest dart'
+    required: false
+    default: 'stable'
   run-bootstrap:
     description: 'Whether bootstrap should run or not (default: true)'
     required: false
@@ -123,6 +127,8 @@ runs:
     - name: 'Installs the Dart SDK and sets up the pipeline for usage with pub.dev (this sets up OIDC)'
       if: ${{ inputs.publish == 'true' }}
       uses: dart-lang/setup-dart@v1
+      with:
+        sdk: ${{ inputs.dart-version }}
     - name: 'Publish package related to tag to pub.dev'
       if: ${{ inputs.publish == 'true' }}
       run: melos publish -y --no-dry-run --scope=$PACKAGE_NAME

@@ -9,7 +9,10 @@ inputs:
     description: 'The Melos version to make available on the path'
     required: false
   dart-version:
-    description: 'The dart version to pass to dart-lang/setup-dart action used for publishing, this helps to avoid race condition when having flutter SDK setup with the version different from the latest dart'
+    description: >-
+      The dart version to pass to dart-lang/setup-dart action used 
+      for publishing, this helps to avoid race condition when having 
+      flutter SDK setup with the version different from the latest dart'
     required: false
     default: 'stable'
   run-bootstrap:
@@ -17,7 +20,11 @@ inputs:
     required: false
     default: 'true'
   bootstrap-no-example:
-    description: 'Whether to pass the --no-example flag to melos bootstrap, this helps avoid race conditions in flutter packages, where pub get can be executed on the example project before melos has had a chance to generate its pubspec_overrides.yaml (default: false)'
+    description: >-
+        Whether to pass the --no-example flag to melos bootstrap, this 
+        helps avoid race conditions in flutter packages, where pub get 
+        can be executed on the example project before melos has had a 
+        chance to generate its pubspec_overrides.yaml (default: false)'
     required: false
     default: 'false'
   enforce-lockfile:

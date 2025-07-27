@@ -108,7 +108,7 @@ runs:
       shell: bash
     - name: 'Create Pull Request with changes'
       if: ${{ inputs.create-pr == 'true' }}
-      uses: peter-evans/create-pull-request@v6
+      uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
       with:
         title: 'chore(release): Publish packages'
         body: 'Prepared all packages to be released to pub.dev'
@@ -133,7 +133,7 @@ runs:
       shell: bash
     - name: 'Installs the Dart SDK and sets up the pipeline for usage with pub.dev (this sets up OIDC)'
       if: ${{ inputs.publish == 'true' }}
-      uses: dart-lang/setup-dart@v1
+      uses: dart-lang/setup-dart@e51d8e571e22473a2ddebf0ef8a2123f0ab2c02c # v1.7.1
       with:
         sdk: ${{ inputs.dart-version }}
     - name: 'Publish package related to tag to pub.dev'

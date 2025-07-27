@@ -13,7 +13,6 @@ updates:
       include: "scope"
     rebase-strategy: "auto"
     open-pull-requests-limit: 5
-    insecure-external-code-execution: "deny"
     pull-request-branch-name:
       separator: "-"
     groups:

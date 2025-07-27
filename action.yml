@@ -10,9 +10,11 @@ inputs:
     required: false
   dart-version:
     description: >-
-      The dart version to pass to dart-lang/setup-dart action used 
-      for publishing, this helps to avoid race condition when having 
-      flutter SDK setup with the version different from the latest dart'
+      The dart version to pass to dart-lang/setup-dart action used for
+      publishing, this helps to avoid race condition when having flutter SDK
+      setup with the version different from the latest dart.
+      If 'none' is passed in, the action doesn't set up the dart version at
+      all.
     required: false
     default: 'stable'
   run-bootstrap:
@@ -21,10 +23,10 @@ inputs:
     default: 'true'
   bootstrap-no-example:
     description: >-
-        Whether to pass the --no-example flag to melos bootstrap, this 
-        helps avoid race conditions in flutter packages, where pub get 
-        can be executed on the example project before melos has had a 
-        chance to generate its pubspec_overrides.yaml (default: false)'
+      Whether to pass the --no-example flag to melos bootstrap, this helps to
+      avoid race conditions in flutter packages, where pub get can be executed
+      on the example project before melos has had a chance to generate its
+      pubspec_overrides.yaml (default: false)
     required: false
     default: 'false'
   enforce-lockfile:
@@ -132,7 +134,7 @@ runs:
         echo "Package name: $PACKAGE_NAME"
       shell: bash
     - name: 'Installs the Dart SDK and sets up the pipeline for usage with pub.dev (this sets up OIDC)'
-      if: ${{ inputs.publish == 'true' }}
+      if: ${{ inputs.publish == 'true' && inputs.dart-version != 'none' }}
       uses: dart-lang/setup-dart@e51d8e571e22473a2ddebf0ef8a2123f0ab2c02c # v1.7.1
       with:
         sdk: ${{ inputs.dart-version }}

@@ -3,9 +3,10 @@
 Activates [Melos](https://github.com/invertase/melos) for your GitHub workflow.
 It can also automatically version, dry-run and publish your packages to pub.dev.
 
-NOTE: Remember to check the "Allow GitHub Actions to create and approve pull
-requests" checkbox in the bottom of the Actions > General section of your
-repository settings if you want to use `create-pr: true`.
+> [!NOTE]
+> Remember to check the "Allow GitHub Actions to create and approve pull
+> requests" checkbox in the bottom of the Actions > General section of your
+> repository settings if you want to use `create-pr: true`.
 
 
 ## Installation

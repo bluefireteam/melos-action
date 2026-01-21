@@ -110,7 +110,7 @@ runs:
       shell: bash
     - name: 'Create Pull Request with changes'
       if: ${{ inputs.create-pr == 'true' }}
-      uses: peter-evans/create-pull-request@98357b18bf14b5342f975ff684046ec3b2a07725 # v8.0.0
+      uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8.1.0
       with:
         title: 'chore(release): Publish packages'
         body: 'Prepared all packages to be released to pub.dev'

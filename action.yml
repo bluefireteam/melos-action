@@ -121,7 +121,7 @@ runs:
         # We don't care about errors due to creating new tags (`|| true`)
         # since for all packages that didn't get a new release, the tag already exists.
         melos exec -c 1 ${{ (inputs.include-private == 'true' && '--private') || '--no-private' }} -- git tag \$MELOS_PACKAGE_NAME-v\$MELOS_PACKAGE_VERSION || true
-        # Push tags one by one to avoid github limitation on emmiting new tag event
+        # Push tags one by one to avoid github limitation on emitting new tag events
         git push --no-follow-tags
         for tag in $(git tag --points-at HEAD); do git push origin "$tag"; done
       shell: bash

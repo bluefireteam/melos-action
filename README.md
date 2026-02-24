@@ -55,6 +55,7 @@ action, they are all optional.
 | publish                   | false                 | Whether packages should be published to pub.dev.                                                             |
 | dart-version              | stable                | The Dart version that should be used for OIDC setup for publishing. Pass in `'none'` to setup this manually. |
 | create-pr                 | false                 | Whether to create a PR with the changes made by Melos.                                                       |
+| token                     | GITHUB_TOKEN          | Token used when creating the PR. Use a PAT or GitHub App token to trigger workflows on the created PR.       |
 | tag                       | false                 | Whether tags for the packages should be created.                                                             |
 | git-email                 | contact@blue-fire.xyz | The email to use when committing changes.                                                                    |
 | git-name                  | Melos Action          | The name to use when committing changes.                                                                     |
@@ -135,6 +136,23 @@ And this note is worth repeating - Remember to check the "Allow GitHub Actions
 to create and approve pull requests" checkbox in the bottom of the
 Actions > General section of your repository settings if you want to use
 `create-pr: true`.
+
+#### Using a custom token for PR creation
+
+By default, PRs created by the action use the `GITHUB_TOKEN`, which does not
+trigger downstream workflows (e.g. CI checks) on the created PR. To work around
+this, pass a PAT or GitHub App token via the `token` input:
+
+```yaml
+steps:
+  - uses: actions/checkout@v4
+  - uses: subosito/flutter-action@v2
+  - uses: bluefireteam/melos-action@v3
+    with:
+      run-versioning: true
+      create-pr: true
+      token: ${{ secrets.MY_GITHUB_PAT }}
+```
 
 See the [examples directory](./examples) to get files that you can copy and
 paste into your repository.

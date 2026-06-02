@@ -65,6 +65,14 @@ inputs:
     description: 'Whether a PR should be created with the versioning changes (default: false)'
     required: false
     default: 'false'
+  pr-title:
+    description: 'The title to use for the PR created when `create-pr` is true (default: "chore(release): Publish packages")'
+    required: false
+    default: 'chore(release): Publish packages'
+  pr-body:
+    description: 'The body to use for the PR created when `create-pr` is true (default: "Prepared all packages to be released to pub.dev")'
+    required: false
+    default: 'Prepared all packages to be released to pub.dev'
   token:
     description: 'Token to use when creating the PR. Use a PAT or GitHub App token to trigger workflows on the created PR (default: GITHUB_TOKEN)'
     required: false
@@ -117,8 +125,8 @@ runs:
       uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
       with:
         token: ${{ inputs.token }}
-        title: 'chore(release): Publish packages'
-        body: 'Prepared all packages to be released to pub.dev'
+        title: ${{ inputs.pr-title }}
+        body: ${{ inputs.pr-body }}
         branch: release-${{github.run_id}}
     - name: 'Create and push tags to the repository'
       if: ${{ inputs.tag == 'true' }}

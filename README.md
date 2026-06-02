@@ -55,6 +55,8 @@ action, they are all optional.
 | publish                   | false                 | Whether packages should be published to pub.dev.                                                             |
 | dart-version              | stable                | The Dart version that should be used for OIDC setup for publishing. Pass in `'none'` to setup this manually. |
 | create-pr                 | false                 | Whether to create a PR with the changes made by Melos.                                                       |
+| pr-title                  | chore(release): Publish packages | The title to use for the PR created when `create-pr` is true.                                     |
+| pr-body                   | Prepared all packages to be released to pub.dev | The body to use for the PR created when `create-pr` is true.                       |
 | token                     | GITHUB_TOKEN          | Token used when creating the PR. Use a PAT or GitHub App token to trigger workflows on the created PR.       |
 | tag                       | false                 | Whether tags for the packages should be created.                                                             |
 | git-email                 | contact@blue-fire.xyz | The email to use when committing changes.                                                                    |

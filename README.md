@@ -8,7 +8,6 @@ It can also automatically version, dry-run and publish your packages to pub.dev.
 > requests" checkbox in the bottom of the Actions > General section of your
 > repository settings if you want to use `create-pr: true`.
 
-
 ## Installation
 
 The `melos-action` needs to have either dart or flutter on the path before it
@@ -16,49 +15,48 @@ can activate melos. With this set up it will automatically add melos to your
 path and run `melos bootstrap`, for more advanced usa-cases, like automatic
 releases, see the [Parameters](#parameters) section.
 
-
 ### With Flutter
 
 ```yaml
 steps:
-- uses: actions/checkout@v4
-- uses: subosito/flutter-action@v2
-- uses: bluefireteam/melos-action@v3
+  - uses: actions/checkout@v4
+  - uses: subosito/flutter-action@v2
+  - uses: bluefireteam/melos-action@v3
 ```
-
 
 ### With Dart
 
 ```yaml
 steps:
-- uses: actions/checkout@v4
-- uses: dart-lang/setup-dart@v1
-- uses: bluefireteam/melos-action@v3
+  - uses: actions/checkout@v4
+  - uses: dart-lang/setup-dart@v1
+  - uses: bluefireteam/melos-action@v3
 ```
-
 
 ## Parameters
 
 There are a few parameters that can be set to customize the behavior of the
 action, they are all optional.
 
-| Parameter                 | Default               | Description                                                                                                  |
-| ------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------ |
-| melos-version             | latest                | The version of Melos to activate.                                                                            |
-| run-bootstrap             | true                  | Whether to run `melos bootstrap` after activating Melos.                                                     |
-| enforce-lockfile          | false                 | Whether the versions in the lockfiles should be enforced.                                                    |
-| run-versioning            | false                 | Whether packages should be versioned.                                                                        |
-| run-versioning-prerelease | false                 | Whether packages should be versioned as a prerelease.                                                        |
-| run-versioning-graduate   | false                 | Whether packages should be versioned while graduating prereleases to stable.                                 |
-| include-private           | false                 | Whether to include or exclude packages with `publish_to: "none"`                                             |
-| publish-dry-run           | false                 | Whether packages should be dry-run published.                                                                |
-| publish                   | false                 | Whether packages should be published to pub.dev.                                                             |
-| dart-version              | stable                | The Dart version that should be used for OIDC setup for publishing. Pass in `'none'` to setup this manually. |
-| create-pr                 | false                 | Whether to create a PR with the changes made by Melos.                                                       |
-| token                     | GITHUB_TOKEN          | Token used when creating the PR. Use a PAT or GitHub App token to trigger workflows on the created PR.       |
-| tag                       | false                 | Whether tags for the packages should be created.                                                             |
-| git-email                 | contact@blue-fire.xyz | The email to use when committing changes.                                                                    |
-| git-name                  | Melos Action          | The name to use when committing changes.                                                                     |
+| Parameter                 | Default                                         | Description                                                                                                  |
+| ------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| melos-version             | latest                                          | The version of Melos to activate.                                                                            |
+| run-bootstrap             | true                                            | Whether to run `melos bootstrap` after activating Melos.                                                     |
+| enforce-lockfile          | false                                           | Whether the versions in the lockfiles should be enforced.                                                    |
+| run-versioning            | false                                           | Whether packages should be versioned.                                                                        |
+| run-versioning-prerelease | false                                           | Whether packages should be versioned as a prerelease.                                                        |
+| run-versioning-graduate   | false                                           | Whether packages should be versioned while graduating prereleases to stable.                                 |
+| include-private           | false                                           | Whether to include or exclude packages with `publish_to: "none"`                                             |
+| publish-dry-run           | false                                           | Whether packages should be dry-run published.                                                                |
+| publish                   | false                                           | Whether packages should be published to pub.dev.                                                             |
+| dart-version              | stable                                          | The Dart version that should be used for OIDC setup for publishing. Pass in `'none'` to setup this manually. |
+| create-pr                 | false                                           | Whether to create a PR with the changes made by Melos.                                                       |
+| pr-title                  | chore(release): Publish packages                | The title to use for the PR created when `create-pr` is true.                                                |
+| pr-body                   | Prepared all packages to be released to pub.dev | The body to use for the PR created when `create-pr` is true.                                                 |
+| token                     | GITHUB_TOKEN                                    | Token used when creating the PR. Use a PAT or GitHub App token to trigger workflows on the created PR.       |
+| tag                       | false                                           | Whether tags for the packages should be created.                                                             |
+| git-email                 | contact@blue-fire.xyz                           | The email to use when committing changes.                                                                    |
+| git-name                  | Melos Action                                    | The name to use when committing changes.                                                                     |
 
 To set a specific parameter you use the `with` keyword in your action, like in
 the example below.
@@ -71,7 +69,6 @@ steps:
     with:
       run-bootstrap: false
 ```
-
 
 ### Set melos version
 
@@ -89,13 +86,12 @@ version like this `'>=1.2.0 < 1.3.0'` which would allow any version between
 
 ```yaml
 steps:
-- uses: actions/checkout@v4
-- uses: subosito/flutter-action@v2
-- uses: bluefireteam/melos-action@v3
-  with:
-    melos-version: '1.2.0'
+  - uses: actions/checkout@v4
+  - uses: subosito/flutter-action@v2
+  - uses: bluefireteam/melos-action@v3
+    with:
+      melos-version: "1.2.0"
 ```
-
 
 ### Automatic versioning and publishing
 
@@ -116,7 +112,7 @@ merged you have a few different options:
 
 1. **[Version and release on workflow dispatch:](./examples/01-workflow-dispatch)**
    Create three actions: one which versions and dry-run publishes your packages
-   and then creates a release preparation PR when this workflow is triggered. 
+   and then creates a release preparation PR when this workflow is triggered.
    And a second action that creates a tag when the PR is merged and starts the
    release workflow.
    In the third action a dispatch workflow is created to publish the created
@@ -128,7 +124,6 @@ merged you have a few different options:
 3. **[Only run dry-run versioning and publishing as a check:](./examples/03-check-only)**
    Only use the action to ensure in your pipeline that your packages are
    releasable, i.e. doesn't fail any dry run.
-
 
 **Note:** Publishing directly from GitHub Actions to pub.dev only works if dispatched from a _tag_, not from a branch.
 

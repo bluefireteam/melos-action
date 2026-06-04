@@ -21,3 +21,5 @@ jobs:
       - uses: bluefireteam/melos-action@v3
         with:
           publish: true
+          # Create a GitHub release with notes from the package's CHANGELOG.md
+          create-release: true

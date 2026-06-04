@@ -61,6 +61,20 @@ inputs:
     description: 'Whether packages should be published to pub.dev (default: false)'
     required: false
     default: 'false'
+  create-release:
+    description: >-
+      Whether a GitHub release should be created for the package related to the
+      tag that triggered the workflow. The release notes are extracted from the
+      package's CHANGELOG.md for the released version (default: false)
+    required: false
+    default: 'false'
+  release-prerelease:
+    description: >-
+      Whether the created GitHub release should be marked as a prerelease. By
+      default this is detected automatically from the version (any version
+      containing a `-`, e.g. `1.2.3-dev.1`, is treated as a prerelease)
+    required: false
+    default: 'auto'
   create-pr:
     description: 'Whether a PR should be created with the versioning changes (default: false)'
     required: false
@@ -139,7 +153,7 @@ runs:
         for tag in $(git tag --points-at HEAD); do git push origin "$tag"; done
       shell: bash
     - name: 'Extract tag info'
-      if: ${{ inputs.publish == 'true' }}
+      if: ${{ inputs.publish == 'true' || inputs.create-release == 'true' }}
       env:
         GITHUBREF: ${{ github.ref }}
       # Support semver, e.g.: "refs/tags/my_package-v1.2.3+alpha.1"
@@ -147,6 +161,9 @@ runs:
         PACKAGE_NAME=$(sed -E 's/refs\/tags\/([a-z0-9_]+)-v([0-9]+\.[0-9]+\.[0-9]+.*)$/\1/' <<< $GITHUBREF) && \
         echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
         echo "Package name: $PACKAGE_NAME"
+        PACKAGE_VERSION=$(sed -E 's/refs\/tags\/([a-z0-9_]+)-v([0-9]+\.[0-9]+\.[0-9]+.*)$/\2/' <<< $GITHUBREF) && \
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+        echo "Package version: $PACKAGE_VERSION"
       shell: bash
     - name: 'Installs the Dart SDK and sets up the pipeline for usage with pub.dev (this sets up OIDC)'
       if: ${{ inputs.publish == 'true' && inputs.dart-version != 'none' }}
@@ -157,3 +174,37 @@ runs:
       if: ${{ inputs.publish == 'true' }}
       run: melos publish -y --no-dry-run --scope=$PACKAGE_NAME
       shell: bash
+    - name: 'Extract changelog for the release'
+      if: ${{ inputs.create-release == 'true' }}
+      # Read the section for $PACKAGE_VERSION out of the package's CHANGELOG.md.
+      # The section starts at the "## <version>" header and ends at the next
+      # "## " header (or the end of the file).
+      run: |
+        PACKAGE_PATH=$(melos list --json | jq -r ".[] | select(.name == \"$PACKAGE_NAME\") | .path")
+        CHANGELOG_PATH="$PACKAGE_PATH/CHANGELOG.md"
+        if [ -f "$CHANGELOG_PATH" ]; then
+          CHANGELOG_CONTENT=$(awk -v header="## $PACKAGE_VERSION" 'index($0,header)==1{flag=1;next} /^## /{flag=0} flag' "$CHANGELOG_PATH")
+        else
+          echo "No CHANGELOG.md found at $CHANGELOG_PATH, creating release without notes."
+          CHANGELOG_CONTENT=""
+        fi
+        {
+          echo "RELEASE_BODY<<MELOS_RELEASE_EOF"
+          echo "$CHANGELOG_CONTENT"
+          if [ "${{ inputs.publish }}" = "true" ]; then
+            echo ""
+            echo "---"
+            echo "Published to pub.dev: https://pub.dev/packages/$PACKAGE_NAME/versions/$PACKAGE_VERSION"
+          fi
+          echo "MELOS_RELEASE_EOF"
+        } >> $GITHUB_ENV
+      shell: bash
+    - name: 'Create GitHub release'
+      if: ${{ inputs.create-release == 'true' }}
+      uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe # v2.6.1
+      with:
+        token: ${{ inputs.token }}
+        tag_name: ${{ env.PACKAGE_NAME }}-v${{ env.PACKAGE_VERSION }}
+        name: ${{ env.PACKAGE_NAME }} v${{ env.PACKAGE_VERSION }}
+        body: ${{ env.RELEASE_BODY }}
+        prerelease: ${{ inputs.release-prerelease == 'auto' && contains(env.PACKAGE_VERSION, '-') || inputs.release-prerelease == 'true' }}

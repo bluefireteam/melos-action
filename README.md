@@ -49,6 +49,8 @@ action, they are all optional.
 | include-private           | false                                           | Whether to include or exclude packages with `publish_to: "none"`                                             |
 | publish-dry-run           | false                                           | Whether packages should be dry-run published.                                                                |
 | publish                   | false                                           | Whether packages should be published to pub.dev.                                                             |
+| create-release            | false                                           | Whether a GitHub release (with notes from the package's CHANGELOG.md) should be created for the tagged package. |
+| release-prerelease        | auto                                            | Whether the GitHub release is marked as a prerelease. `auto` detects it from the version (any `-` suffix).    |
 | dart-version              | stable                                          | The Dart version that should be used for OIDC setup for publishing. Pass in `'none'` to setup this manually. |
 | create-pr                 | false                                           | Whether to create a PR with the changes made by Melos.                                                       |
 | pr-title                  | chore(release): Publish packages                | The title to use for the PR created when `create-pr` is true.                                                |

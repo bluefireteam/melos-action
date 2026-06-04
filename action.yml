@@ -178,16 +178,28 @@ runs:
       if: ${{ inputs.create-release == 'true' }}
       # Read the section for $PACKAGE_VERSION out of the package's CHANGELOG.md.
       # The section starts at the "## <version>" header and ends at the next
-      # "## " header (or the end of the file).
+      # "## " header (or the end of the file). The version is matched exactly
+      # against the header's version token so "1.2.3" does not match "1.2.30".
       run: |
         PACKAGE_PATH=$(melos list --json | jq -r ".[] | select(.name == \"$PACKAGE_NAME\") | .location")
         CHANGELOG_PATH="$PACKAGE_PATH/CHANGELOG.md"
         if [ -f "$CHANGELOG_PATH" ]; then
-          CHANGELOG_CONTENT=$(awk -v header="## $PACKAGE_VERSION" 'index($0,header)==1{flag=1;next} /^## /{flag=0} flag' "$CHANGELOG_PATH")
+          CHANGELOG_CONTENT=$(awk -v ver="$PACKAGE_VERSION" '/^## /{flag=($2==ver); next} flag' "$CHANGELOG_PATH")
         else
           echo "No CHANGELOG.md found at $CHANGELOG_PATH, creating release without notes."
           CHANGELOG_CONTENT=""
         fi
+        # Detect prerelease from the version, ignoring "+build" metadata (which
+        # may itself contain a "-"). A "-" in the version core marks a prerelease.
+        if [ "${{ inputs.release-prerelease }}" = "auto" ]; then
+          case "${PACKAGE_VERSION%%+*}" in
+            *-*) IS_PRERELEASE=true ;;
+            *) IS_PRERELEASE=false ;;
+          esac
+        else
+          IS_PRERELEASE="${{ inputs.release-prerelease }}"
+        fi
+        echo "RELEASE_PRERELEASE=$IS_PRERELEASE" >> $GITHUB_ENV
         {
           echo "RELEASE_BODY<<MELOS_RELEASE_EOF"
           echo "$CHANGELOG_CONTENT"
@@ -207,4 +219,4 @@ runs:
         tag_name: ${{ env.PACKAGE_NAME }}-v${{ env.PACKAGE_VERSION }}
         name: ${{ env.PACKAGE_NAME }} v${{ env.PACKAGE_VERSION }}
         body: ${{ env.RELEASE_BODY }}
-        prerelease: ${{ inputs.release-prerelease == 'auto' && contains(env.PACKAGE_VERSION, '-') || inputs.release-prerelease == 'true' }}
+        prerelease: ${{ env.RELEASE_PRERELEASE }}

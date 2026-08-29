@@ -95,6 +95,13 @@ inputs:
     description: 'The body to use for the PR created when `create-pr` is true (default: "Prepared all packages to be released to pub.dev")'
     required: false
     default: 'Prepared all packages to be released to pub.dev'
+  close-existing-pr:
+    description: >-
+      Whether open release PRs previously created by this action should be
+      closed, and their branches deleted, when a new PR is created with
+      `create-pr` (default: true)
+    required: false
+    default: 'true'
   token:
     description: 'Token to use when creating the PR. Use a PAT or GitHub App token to trigger workflows on the created PR (default: GITHUB_TOKEN)'
     required: false
@@ -149,6 +156,7 @@ runs:
       run: melos publish -y --dry-run
       shell: bash
     - name: 'Create Pull Request with changes'
+      id: create-pr
       if: ${{ inputs.create-pr == 'true' }}
       uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
       with:
@@ -156,6 +164,23 @@ runs:
         title: ${{ inputs.pr-title }}
         body: ${{ inputs.pr-body }}
         branch: release-${{github.run_id}}
+    - name: 'Close previous release Pull Requests'
+      if: ${{ inputs.create-pr == 'true' && inputs.close-existing-pr == 'true' && steps.create-pr.outputs.pull-request-operation == 'created' }}
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        GH_REPO: ${{ github.repository }}
+        NEW_PR_NUMBER: ${{ steps.create-pr.outputs.pull-request-number }}
+      # Each run creates its PR from a `release-<run id>` branch, so any other
+      # open PR from such a branch is a release PR from a previous run that is
+      # superseded by the PR created in this run.
+      run: |
+        PREVIOUS_PRS=$(gh pr list --state open --limit 100 --json number,headRefName \
+          --jq ".[] | select(.headRefName | test(\"^release-[0-9]+$\")) | select(.number != $NEW_PR_NUMBER) | .number")
+        for pr in $PREVIOUS_PRS; do
+          echo "Closing previous release PR #$pr"
+          gh pr close "$pr" --delete-branch --comment "Superseded by #$NEW_PR_NUMBER."
+        done
+      shell: bash
     - name: 'Detect the tag format used by the workspace'
       if: ${{ inputs.tag == 'true' || inputs.publish == 'true' || inputs.create-release == 'true' }}
       # Workspaces versioned in lockstep with `command/version/workspaceTag`

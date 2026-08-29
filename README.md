@@ -49,14 +49,14 @@ action, they are all optional.
 | include-private           | false                                           | Whether to include or exclude packages with `publish_to: "none"`                                             |
 | publish-dry-run           | false                                           | Whether packages should be dry-run published.                                                                |
 | publish                   | false                                           | Whether packages should be published to pub.dev.                                                             |
-| create-release            | false                                           | Whether a GitHub release (with notes from the package's CHANGELOG.md) should be created for the tagged package. |
+| create-release            | false                                           | Whether a GitHub release (with notes from the package's CHANGELOG.md) should be created for the tagged package, or for the whole workspace when using a [workspace tag](#tag-formats). |
 | release-prerelease        | auto                                            | Whether the GitHub release is marked as a prerelease. `auto` detects it from the version (any `-` suffix).    |
 | dart-version              | stable                                          | The Dart version that should be used for OIDC setup for publishing. Pass in `'none'` to setup this manually. |
 | create-pr                 | false                                           | Whether to create a PR with the changes made by Melos.                                                       |
 | pr-title                  | chore(release): Publish packages                | The title to use for the PR created when `create-pr` is true.                                                |
 | pr-body                   | Prepared all packages to be released to pub.dev | The body to use for the PR created when `create-pr` is true.                                                 |
 | token                     | GITHUB_TOKEN                                    | Token used when creating the PR. Use a PAT or GitHub App token to trigger workflows on the created PR.       |
-| tag                       | false                                           | Whether tags for the packages should be created.                                                             |
+| tag                       | false                                           | Whether tags for the packages should be created and pushed, see [Tag formats](#tag-formats).                 |
 | git-email                 | contact@blue-fire.xyz                           | The email to use when committing changes.                                                                    |
 | git-name                  | Melos Action                                    | The name to use when committing changes.                                                                     |
 
@@ -153,3 +153,51 @@ steps:
 
 See the [examples directory](./examples) to get files that you can copy and
 paste into your repository.
+
+### Tag formats
+
+By default each package is tagged as `my_package-vX.Y.Z`, and the publish
+workflow that is started for such a tag publishes only that package.
+
+Melos 8.6.0 and later also uses plain version tags on the `vX.Y.Z` format in
+two cases, both of which the action detects automatically:
+
+- The root package of a workspace with
+  [`useRootAsPackage`](https://melos.invertase.dev/configuration/overview#userootaspackage)
+  enabled is tagged as `vX.Y.Z`, while all other packages are still tagged as
+  `my_package-vX.Y.Z`. A `vX.Y.Z` tag publishes and releases the root package.
+- A workspace versioned in lockstep (`command/version/mode: fixed`) with
+  [`command/version/workspaceTag`](https://melos.invertase.dev/configuration/overview#workspacetag)
+  enabled is tagged with a single `vX.Y.Z` tag for the whole workspace. A
+  `vX.Y.Z` tag publishes all packages in the workspace and creates one GitHub
+  release with the release notes of all packages combined.
+
+The action tells these two cases apart by reading `workspaceTag: true` from
+the `melos` section of the root `pubspec.yaml`.
+
+## Outputs
+
+| Output | Description                                                                                 |
+| ------ | ------------------------------------------------------------------------------------------- |
+| tags   | The space separated tags that were created and pushed to the repository when `tag` is true. |
+
+The `tags` output makes it easy to start the publish workflow for each created
+tag, regardless of the [tag format](#tag-formats):
+
+```yaml
+steps:
+  - uses: actions/checkout@v4
+    with:
+      fetch-depth: 0
+  - uses: subosito/flutter-action@v2
+  - uses: bluefireteam/melos-action@v3
+    id: melos
+    with:
+      tag: true
+  - run: |
+      for tag in ${{ steps.melos.outputs.tags }}; do
+        gh workflow run release-publish.yml --ref "$tag"
+      done
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```

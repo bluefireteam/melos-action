@@ -54,7 +54,12 @@ inputs:
     required: false
     default: 'false'
   tag:
-    description: 'Whether packages should be tagged and pushed to the repository (default: false)'
+    description: >-
+      Whether packages should be tagged and pushed to the repository. Packages
+      are tagged as `my_package-vX.Y.Z`, except for the root package of a
+      workspace with `useRootAsPackage` enabled, which is tagged as `vX.Y.Z`.
+      Workspaces with `command/version/workspaceTag` enabled are tagged with a
+      single `vX.Y.Z` tag instead (default: false)
     required: false
     default: 'false'
   publish:
@@ -65,7 +70,10 @@ inputs:
     description: >-
       Whether a GitHub release should be created for the package related to the
       tag that triggered the workflow. The release notes are extracted from the
-      package's CHANGELOG.md for the released version (default: false)
+      package's CHANGELOG.md for the released version. When the tag is a
+      workspace tag (`command/version/workspaceTag`), the release covers all
+      packages in the workspace and the release notes are combined from the
+      CHANGELOG.md of each package (default: false)
     required: false
     default: 'false'
   release-prerelease:
@@ -99,6 +107,12 @@ inputs:
     description: 'The name to use when committing changes'
     required: false
     default: 'github-actions[bot]'
+outputs:
+  tags:
+    description: >-
+      The space separated tags that were created and pushed to the repository
+      when `tag` is true
+    value: ${{ steps.tag.outputs.tags }}
 runs:
   using: composite
   steps:
@@ -142,28 +156,94 @@ runs:
         title: ${{ inputs.pr-title }}
         body: ${{ inputs.pr-body }}
         branch: release-${{github.run_id}}
+    - name: 'Detect the tag format used by the workspace'
+      if: ${{ inputs.tag == 'true' || inputs.publish == 'true' || inputs.create-release == 'true' }}
+      # Workspaces versioned in lockstep with `command/version/workspaceTag`
+      # enabled are tagged with a single plain version tag, e.g. `v1.2.3`, for
+      # the whole workspace. The root package of workspaces with
+      # `useRootAsPackage` enabled is also tagged with plain version tags, while
+      # all other packages are tagged with tags prefixed with the package name,
+      # e.g. `my_package-v1.2.3`.
+      run: |
+        if grep -Eq '^[[:space:]]+workspaceTag:[[:space:]]*true([[:space:]]+#.*)?[[:space:]]*$' pubspec.yaml 2>/dev/null; then
+          WORKSPACE_TAG=true
+        else
+          WORKSPACE_TAG=false
+        fi
+        echo "WORKSPACE_TAG=$WORKSPACE_TAG" >> $GITHUB_ENV
+        echo "Workspace tag: $WORKSPACE_TAG"
+      shell: bash
     - name: 'Create and push tags to the repository'
+      id: tag
       if: ${{ inputs.tag == 'true' }}
       run: |
+        PACKAGES=$(melos list --json --relative ${{ inputs.include-private != 'true' && '--no-private' || '' }})
+        if [ "$WORKSPACE_TAG" = "true" ]; then
+          # All packages share the same version when versioned in lockstep, so
+          # a single plain version tag is created for the whole workspace.
+          VERSIONS=$(jq -r '[.[].version] | unique | .[]' <<< "$PACKAGES")
+          if [ "$(jq '[.[].version] | unique | length' <<< "$PACKAGES")" -eq 1 ]; then
+            TAGS="v$VERSIONS"
+          else
+            echo "::warning::Skipping tag creation since the packages have different versions ($(echo $VERSIONS)), while \"command/version/workspaceTag\" expects all packages to share the same version."
+            TAGS=""
+          fi
+        else
+          TAGS=$(jq -r '.[] | if .location == "." then "v\(.version)" else "\(.name)-v\(.version)" end' <<< "$PACKAGES")
+        fi
         # We don't care about errors due to creating new tags (`|| true`)
         # since for all packages that didn't get a new release, the tag already exists.
-        melos exec -c 1 ${{ (inputs.include-private == 'true' && '--private') || '--no-private' }} -- git tag \$MELOS_PACKAGE_NAME-v\$MELOS_PACKAGE_VERSION || true
+        for tag in $TAGS; do git tag "$tag" || true; done
         # Push tags one by one to avoid github limitation on emitting new tag events
         git push --no-follow-tags
-        for tag in $(git tag --points-at HEAD); do git push origin "$tag"; done
+        PUSHED_TAGS=""
+        for tag in $(git tag --points-at HEAD); do
+          git push origin "$tag"
+          PUSHED_TAGS="$PUSHED_TAGS $tag"
+        done
+        echo "tags=${PUSHED_TAGS# }" >> $GITHUB_OUTPUT
       shell: bash
     - name: 'Extract tag info'
       if: ${{ inputs.publish == 'true' || inputs.create-release == 'true' }}
       env:
         GITHUBREF: ${{ github.ref }}
-      # Support semver, e.g.: "refs/tags/my_package-v1.2.3+alpha.1"
+      # Supports tags prefixed with the package name, e.g.
+      # "refs/tags/my_package-v1.2.3+alpha.1", and plain version tags, e.g.
+      # "refs/tags/v1.2.3+alpha.1". A plain version tag refers to the whole
+      # workspace when `command/version/workspaceTag` is enabled and to the
+      # root package otherwise (when `useRootAsPackage` is enabled).
       run: |
-        PACKAGE_NAME=$(sed -E 's/refs\/tags\/([a-z0-9_]+)-v([0-9]+\.[0-9]+\.[0-9]+.*)$/\1/' <<< $GITHUBREF) && \
+        TAG="${GITHUBREF#refs/tags/}"
+        if [[ "$TAG" =~ ^([a-z0-9_]+)-v([0-9]+\.[0-9]+\.[0-9]+.*)$ ]]; then
+          PACKAGE_NAME="${BASH_REMATCH[1]}"
+          PACKAGE_VERSION="${BASH_REMATCH[2]}"
+        elif [[ "$TAG" =~ ^v([0-9]+\.[0-9]+\.[0-9]+.*)$ ]]; then
+          PACKAGE_VERSION="${BASH_REMATCH[1]}"
+          if [ "$WORKSPACE_TAG" = "true" ]; then
+            # An empty package name refers to all packages in the workspace.
+            PACKAGE_NAME=""
+          else
+            PACKAGE_NAME=$(melos list --json --relative | jq -r '.[] | select(.location == ".") | .name')
+            if [ -z "$PACKAGE_NAME" ]; then
+              echo "::error::The tag \"$TAG\" is a plain version tag, but neither \"command/version/workspaceTag\" nor \"useRootAsPackage\" is enabled in the workspace."
+              exit 1
+            fi
+          fi
+        else
+          echo "::error::The tag \"$TAG\" is neither on the \"my_package-vX.Y.Z\" nor on the \"vX.Y.Z\" format."
+          exit 1
+        fi
+        if [ -n "$PACKAGE_NAME" ]; then
+          RELEASE_NAME="$PACKAGE_NAME v$PACKAGE_VERSION"
+        else
+          RELEASE_NAME="v$PACKAGE_VERSION"
+        fi
         echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
-        echo "Package name: $PACKAGE_NAME"
-        PACKAGE_VERSION=$(sed -E 's/refs\/tags\/([a-z0-9_]+)-v([0-9]+\.[0-9]+\.[0-9]+.*)$/\2/' <<< $GITHUBREF) && \
+        echo "Package name: ${PACKAGE_NAME:-<all packages in the workspace>}"
         echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
         echo "Package version: $PACKAGE_VERSION"
+        echo "RELEASE_TAG=$TAG" >> $GITHUB_ENV
+        echo "RELEASE_NAME=$RELEASE_NAME" >> $GITHUB_ENV
       shell: bash
     - name: 'Installs the Dart SDK and sets up the pipeline for usage with pub.dev (this sets up OIDC)'
       if: ${{ inputs.publish == 'true' && inputs.dart-version != 'none' }}
@@ -172,23 +252,43 @@ runs:
         sdk: ${{ inputs.dart-version }}
     - name: 'Publish package related to tag to pub.dev'
       if: ${{ inputs.publish == 'true' }}
-      run: melos publish -y --no-dry-run --scope=$PACKAGE_NAME
+      # All packages are published when the tag refers to the whole workspace.
+      run: melos publish -y --no-dry-run ${PACKAGE_NAME:+--scope=$PACKAGE_NAME}
       shell: bash
     - name: 'Extract changelog for the release'
       if: ${{ inputs.create-release == 'true' }}
-      # Read the section for $PACKAGE_VERSION out of the package's CHANGELOG.md.
-      # The section starts at the "## <version>" header and ends at the next
-      # "## " header (or the end of the file). The version is matched exactly
-      # against the header's version token so "1.2.3" does not match "1.2.30".
+      # Read the section for $PACKAGE_VERSION out of the CHANGELOG.md of each
+      # package in the release. The section starts at the "## <version>" header
+      # and ends at the next "## " header (or the end of the file). The version
+      # is matched exactly against the header's version token so "1.2.3" does
+      # not match "1.2.30". When the release covers the whole workspace, the
+      # sections of all packages are combined under a "## <package name>"
+      # header each.
       run: |
-        PACKAGE_PATH=$(melos list --json | jq -r ".[] | select(.name == \"$PACKAGE_NAME\") | .location")
-        CHANGELOG_PATH="$PACKAGE_PATH/CHANGELOG.md"
-        if [ -f "$CHANGELOG_PATH" ]; then
-          CHANGELOG_CONTENT=$(awk -v ver="$PACKAGE_VERSION" '/^## /{flag=($2==ver); next} flag' "$CHANGELOG_PATH")
+        if [ -n "$PACKAGE_NAME" ]; then
+          RELEASE_PACKAGES=$(melos list --json | jq -c "[.[] | select(.name == \"$PACKAGE_NAME\")]")
         else
-          echo "No CHANGELOG.md found at $CHANGELOG_PATH, creating release without notes."
-          CHANGELOG_CONTENT=""
+          RELEASE_PACKAGES=$(melos list --json ${{ inputs.include-private != 'true' && '--no-private' || '' }} | jq -c "[.[] | select(.version == \"$PACKAGE_VERSION\")]")
         fi
+        CHANGELOG_CONTENT=""
+        PUBLISHED_PACKAGES=""
+        while IFS=$'\t' read -r NAME LOCATION PRIVATE; do
+          CHANGELOG_PATH="$LOCATION/CHANGELOG.md"
+          if [ -f "$CHANGELOG_PATH" ]; then
+            SECTION=$(awk -v ver="$PACKAGE_VERSION" '/^## /{flag=($2==ver); next} flag' "$CHANGELOG_PATH")
+          else
+            echo "No CHANGELOG.md found at $CHANGELOG_PATH, creating release without notes for $NAME."
+            SECTION=""
+          fi
+          if [ -n "$PACKAGE_NAME" ]; then
+            CHANGELOG_CONTENT="$SECTION"
+          else
+            CHANGELOG_CONTENT="${CHANGELOG_CONTENT:+$CHANGELOG_CONTENT$'\n\n'}## $NAME"$'\n'"$SECTION"
+          fi
+          if [ "$PRIVATE" != "true" ]; then
+            PUBLISHED_PACKAGES="$PUBLISHED_PACKAGES $NAME"
+          fi
+        done < <(jq -r '.[] | "\(.name)\t\(.location)\t\(.private)"' <<< "$RELEASE_PACKAGES")
         # Detect prerelease from the version, ignoring "+build" metadata (which
         # may itself contain a "-"). A "-" in the version core marks a prerelease.
         if [ "${{ inputs.release-prerelease }}" = "auto" ]; then
@@ -203,10 +303,12 @@ runs:
         {
           echo "RELEASE_BODY<<MELOS_RELEASE_EOF"
           echo "$CHANGELOG_CONTENT"
-          if [ "${{ inputs.publish }}" = "true" ]; then
+          if [ "${{ inputs.publish }}" = "true" ] && [ -n "$PUBLISHED_PACKAGES" ]; then
             echo ""
             echo "---"
-            echo "Published to pub.dev: https://pub.dev/packages/$PACKAGE_NAME/versions/$PACKAGE_VERSION"
+            for package in $PUBLISHED_PACKAGES; do
+              echo "Published to pub.dev: https://pub.dev/packages/$package/versions/$PACKAGE_VERSION"
+            done
           fi
           echo "MELOS_RELEASE_EOF"
         } >> $GITHUB_ENV
@@ -216,7 +318,7 @@ runs:
       uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
       with:
         token: ${{ inputs.token }}
-        tag_name: ${{ env.PACKAGE_NAME }}-v${{ env.PACKAGE_VERSION }}
-        name: ${{ env.PACKAGE_NAME }} v${{ env.PACKAGE_VERSION }}
+        tag_name: ${{ env.RELEASE_TAG }}
+        name: ${{ env.RELEASE_NAME }}
         body: ${{ env.RELEASE_BODY }}
         prerelease: ${{ env.RELEASE_PRERELEASE }}

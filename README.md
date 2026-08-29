@@ -55,6 +55,7 @@ action, they are all optional.
 | create-pr                 | false                                           | Whether to create a PR with the changes made by Melos.                                                       |
 | pr-title                  | chore(release): Publish packages                | The title to use for the PR created when `create-pr` is true.                                                |
 | pr-body                   | Prepared all packages to be released to pub.dev | The body to use for the PR created when `create-pr` is true.                                                 |
+| close-existing-pr         | true                                            | Whether open release PRs from previous runs should be closed (and their branches deleted) when a new PR is created. |
 | token                     | GITHUB_TOKEN                                    | Token used when creating the PR. Use a PAT or GitHub App token to trigger workflows on the created PR.       |
 | tag                       | false                                           | Whether tags for the packages should be created and pushed, see [Tag formats](#tag-formats).                 |
 | git-email                 | contact@blue-fire.xyz                           | The email to use when committing changes.                                                                    |

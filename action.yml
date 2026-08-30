@@ -275,6 +275,12 @@ runs:
       uses: dart-lang/setup-dart@7654d458321ee25acccccfdb86cd48bd95768ff1 # v1.8.0
       with:
         sdk: ${{ inputs.dart-version }}
+        # setup-dart >= 1.8.0 registers a `dart analyze` problem matcher
+        # using GITHUB_ACTION_PATH, which inside a composite action points at
+        # this action's checkout, where the matcher file does not exist, and
+        # the step fails (dart-lang/setup-dart#198). Publishing never runs the
+        # analyzer, so the matcher is not needed here.
+        problem-matcher: false
     - name: 'Publish package related to tag to pub.dev'
       if: ${{ inputs.publish == 'true' }}
       # All packages are published when the tag refers to the whole workspace.

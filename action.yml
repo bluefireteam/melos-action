@@ -158,7 +158,7 @@ runs:
     - name: 'Create Pull Request with changes'
       id: create-pr
       if: ${{ inputs.create-pr == 'true' }}
-      uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+      uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1 # v8.1.3
       with:
         token: ${{ inputs.token }}
         title: ${{ inputs.pr-title }}
@@ -272,7 +272,7 @@ runs:
       shell: bash
     - name: 'Installs the Dart SDK and sets up the pipeline for usage with pub.dev (this sets up OIDC)'
       if: ${{ inputs.publish == 'true' && inputs.dart-version != 'none' }}
-      uses: dart-lang/setup-dart@6afc89df92d6eb3834022f73cd65adc8cdfcb92d # v1.8.1
+      uses: dart-lang/setup-dart@2286a0c042b44434fe26d292bbce8d34f7ec662b # v1.8.2
       with:
         sdk: ${{ inputs.dart-version }}
         # setup-dart >= 1.8.0 registers a `dart analyze` problem matcher
@@ -346,7 +346,7 @@ runs:
       shell: bash
     - name: 'Create GitHub release'
       if: ${{ inputs.create-release == 'true' }}
-      uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
+      uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
       with:
         token: ${{ inputs.token }}
         tag_name: ${{ env.RELEASE_TAG }}
